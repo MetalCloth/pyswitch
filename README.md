@@ -57,3 +57,9 @@ curl -X PUT http://127.0.0.1:8000/api/v1/admin/providers/mockstripe/config \
 ```
 
 The current slice uses an in-memory store so it is easy to run in a clean checkout. PostgreSQL/SQLAlchemy, Redis-backed idempotency, refunds, events, metrics, and Compose remain later milestones. See [`docs/adr/0001-reliability-policy.md`](docs/adr/0001-reliability-policy.md) and [`docs/runbook.md`](docs/runbook.md) for the simulated failure procedure.
+
+Further design references:
+
+- [`docs/architecture.md`](docs/architecture.md) — component boundaries, data flow, payment sequence, and simulated outage timeline.
+- [`docs/state-machines.md`](docs/state-machines.md) — payment, retry, circuit, and idempotency state machines.
+- [`docs/adr/0002-provider-neutral-orchestration.md`](docs/adr/0002-provider-neutral-orchestration.md) — provider-neutral orchestration and routing decision.
