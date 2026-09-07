@@ -19,6 +19,14 @@ curl -X POST http://127.0.0.1:8000/api/v1/payments \
   -d '{"merchant_id":"merchant_123","amount":500000,"currency":"INR","payment_method":{"type":"card","token":"test_card"}}'
 ```
 
+The local full-stack configuration is:
+
+```bash
+docker compose up --build
+```
+
+It exposes the API on `8000`, Prometheus on `9090`, Grafana on `3000` (`admin/admin`), PostgreSQL on `5432`, Redis on `6379`, and Redpanda's external Kafka port on `19092`. Container healthchecks gate startup order. `/metrics` is available on the API.
+
 `POST /api/v1/payments`, `GET /api/v1/payments/{id}`, `GET /api/v1/payments`, `POST /api/v1/payments/{id}/refund`, `GET /api/v1/providers`, `GET /api/v1/providers/{provider}`, `/health`, and `/ready` are included in this first vertical slice. Provider selection is round robin among healthy providers. Provider choice stays in internal attempt history and is not returned by the payment API.
 
 The reliability slice retries transient provider-unavailable and 502/503 errors with bounded exponential backoff and jitter. Each provider has an independent `CLOSED -> OPEN -> HALF_OPEN` circuit. Failover is allowed for unavailable providers after retries; an ambiguous timeout stays on the original provider and is never blindly charged on a second provider.
@@ -71,3 +79,8 @@ Further design references:
 - [`docs/adr/0004-redis-coordination-and-rate-limits.md`](docs/adr/0004-redis-coordination-and-rate-limits.md) — Redis atomic coordination and fail-closed decision.
 - [`docs/eventing.md`](docs/eventing.md) — versioned event contract, outbox sequence, replay behavior, and simulated broker outage runbook.
 - [`docs/adr/0005-versioned-events-and-outbox.md`](docs/adr/0005-versioned-events-and-outbox.md) — event/outbox/consumer design decision.
+- [`docs/observability.md`](docs/observability.md) — bounded metrics, JSON logs, dashboard scope, and stack boundaries.
+- [`docs/operations-runbook.md`](docs/operations-runbook.md) — exact local operations commands and labeled simulated scenarios.
+- [`docs/adr/0006-observability-and-local-operations.md`](docs/adr/0006-observability-and-local-operations.md) — observability and Compose decision.
+
+Known environment limits: the default app still uses in-memory payment storage, Redis seams, and broker; Compose provisions PostgreSQL, Redis, and Redpanda but does not wire their clients into the running service. Grafana and Prometheus files are configuration, not collected performance evidence. No load-test, delivery, latency, or recovery numbers are claimed.
