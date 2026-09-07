@@ -1,0 +1,4551 @@
+{
+  "schema_version": 1,
+  "scenario": "idempotency",
+  "recorded_at_utc": "2026-09-07T23:31:02.116489+00:00",
+  "git_commit": "dfa7f19d789587085aeb5f403624d868a72126b4",
+  "command": "scripts/load_evidence.py --base-url http://127.0.0.1:18080 --scenario idempotency --users 500 --requests 500 --output benchmark/results/load-idempotency-500same-key.json",
+  "base_url": "http://127.0.0.1:18080",
+  "runtime": {
+    "python": "3.14.7",
+    "platform": "Linux-7.1.9-arch1-2-x86_64-with-glibc2.44"
+  },
+  "configuration": {
+    "users": 500,
+    "rate_per_second": 10.0,
+    "duration_seconds": 10.0,
+    "requests": 500,
+    "timeout_seconds": 10.0,
+    "provider": null
+  },
+  "summary": {
+    "requests": 500,
+    "status_counts": {
+      "201": 500
+    },
+    "network_errors": {},
+    "successful_payment_responses": 500,
+    "p50_latency_ms": 960.313,
+    "p95_latency_ms": 1089.908,
+    "p99_latency_ms": 1120.524,
+    "observed_requests_per_second": 402.86,
+    "elapsed_seconds": 1.241,
+    "distinct_payment_ids": 1,
+    "by_phase": {
+      "idempotency": {
+        "requests": 500,
+        "status_counts": {
+          "201": 500
+        },
+        "p50_latency_ms": 960.313,
+        "p95_latency_ms": 1089.908,
+        "p99_latency_ms": 1120.524
+      }
+    }
+  },
+  "details": {
+    "equivalent_payment_responses": true
+  },
+  "samples": [
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 850.607,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 829.362,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 827.425,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 827.076,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 827.544,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 826.723,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 793.549,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 881.153,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 792.746,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 825.138,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 791.871,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 824.939,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 824.883,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 879.133,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 790.42,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 823.627,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 822.026,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 789.02,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 821.979,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 876.764,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 787.929,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 820.806,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 821.035,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 819.921,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 786.228,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 818.826,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 819.446,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 785.397,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 818.236,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 816.921,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 783.994,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 871.563,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 782.924,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 815.481,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 815.758,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 814.493,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 815.114,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 814.043,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 813.871,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 812.442,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 813.116,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 813.267,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 811.574,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 867.28,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 867.014,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 811.209,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 777.389,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 810.766,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 742.965,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 809.341,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 808.528,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 864.287,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 808.004,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 808.142,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 862.292,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 807.027,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 807.323,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 805.642,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 806.166,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 805.082,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 771.643,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 803.773,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 804.552,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 803.297,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 726.532,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 803.367,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 802.022,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 857.911,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 857.172,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 801.95,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 767.918,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 801.12,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 799.236,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 854.954,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 798.748,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 731.913,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 798.066,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 764.602,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 797.906,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 796.634,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 797.353,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 796.281,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 850.77,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 795.549,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1044.537,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1142.499,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1142.228,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1040.956,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1032.007,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1033.985,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1028.503,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1058.431,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1028.029,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1082.107,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1113.891,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1053.596,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1024.444,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1099.092,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1022.696,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1090.171,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1027.44,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1029.699,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1027.065,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1112.038,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1120.524,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1059.614,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1133.66,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1085.122,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1126.427,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1111.132,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1019.682,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1094.7,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1075.507,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1050.386,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1067.577,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1030.485,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1045.745,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1018.328,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1116.323,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1051.176,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1073.415,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1012.883,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1126.476,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1018.941,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1097.496,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1057.341,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1049.359,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1031.034,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1031.527,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1018.741,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1012.175,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1096.252,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1012.175,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1052.621,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1088.046,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1032.251,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1110.544,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1048.323,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1028.96,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1005.373,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1009.081,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1118.536,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1118.031,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1023.197,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1087.178,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1116.703,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1071.48,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1024.228,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1080.212,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1001.67,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1035.311,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1061.446,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1046.843,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1008.77,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1012.575,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1112.137,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1022.014,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1025.658,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1003.171,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1091.1,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1046.066,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1077.952,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1100.99,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1038.142,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1006.731,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1034.719,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1019.645,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 993.324,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1011.194,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1009.917,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1089.908,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1061.915,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1026.775,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1042.972,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 991.001,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1063.324,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1000.621,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1099.347,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1040.444,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1038.539,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1001.005,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1032.105,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 994.007,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 984.017,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1045.064,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 990.102,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1045.656,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 991.057,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1052.576,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1093.617,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1006.613,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1092.85,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1009.939,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 994.272,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1074.073,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 833.992,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 798.173,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 834.503,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 832.285,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 796.238,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 831.457,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 795.551,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 830.021,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 831.379,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 829.251,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 830.621,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 828.435,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 829.205,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 827.032,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 828.407,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 826.269,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 827.633,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 825.54,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 826.797,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 824.626,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 788.435,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 823.758,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 787.839,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 822.989,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 787.166,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 822.244,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 822.367,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 821.434,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 820.247,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 821.572,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 819.448,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 783.443,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 818.613,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 818.227,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 782.382,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 817.488,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 781.748,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 816.743,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 815.862,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 779.94,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 815.019,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 778.988,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 814.035,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 812.307,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 813.797,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 811.491,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 812.86,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 810.693,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 812.064,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 810.857,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 808.667,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 809.997,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 807.801,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 809.167,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 808.374,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 806.114,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 807.449,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 805.238,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 806.585,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 806.076,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 803.861,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 805.222,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 803.03,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 804.414,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 802.643,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 803.999,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 801.77,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 803.132,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 800.874,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 799.716,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 800.903,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 798.683,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 799.973,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 797.824,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 799.094,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 798.234,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 796.021,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 797.381,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 795.165,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 796.503,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 794.291,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 793.925,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 795.195,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 792.947,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 794.275,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 792.089,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 793.437,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 792.986,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 790.681,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 792.043,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 789.825,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 791.189,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 788.919,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 753.058,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 788.226,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 752.288,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 787.352,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 751.487,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 786.417,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 785.407,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 749.106,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 784.319,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 748.296,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 783.491,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 747.598,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 782.669,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 781.083,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 782.32,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1036.804,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1036.952,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1031.254,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1031.462,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1031.456,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1031.722,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1031.938,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1032.166,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1032.443,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1032.648,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1026.972,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1028.852,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1029.028,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1029.276,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1029.567,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1029.784,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1024.091,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1024.343,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1025.139,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1025.349,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1025.587,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1025.742,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1025.948,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1020.319,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1020.512,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1021.126,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1021.349,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1021.61,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1021.864,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1022.006,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1016.326,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1016.608,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1016.896,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1017.57,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1017.793,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1018.062,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1018.286,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1012.572,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1012.859,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1013.142,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1013.389,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1015.781,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1010.061,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1010.322,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1010.656,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1010.99,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1011.233,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1011.412,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1011.701,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1011.988,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1006.176,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1006.419,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1006.563,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1006.777,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1006.958,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1007.173,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1007.404,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1006.852,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1007.107,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1001.379,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1001.675,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1001.863,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1002.09,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1002.227,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1002.444,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 1002.757,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 997.026,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 997.285,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 997.581,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 997.902,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 998.055,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 998.218,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 998.478,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 993.65,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 993.888,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 994.075,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 994.296,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 994.488,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 994.732,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 994.872,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 988.903,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 989.376,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 989.706,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 990.003,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 990.2,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 990.389,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 990.628,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 990.79,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 985.112,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 985.427,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 985.585,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 985.836,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 986.019,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 986.244,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 986.474,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 986.765,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 981.054,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 981.513,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 981.747,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 981.928,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 982.121,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 982.354,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 982.511,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 976.774,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 976.905,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 977.657,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 977.839,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 978.038,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 978.238,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 978.253,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 972.589,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 977.503,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 971.847,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 972.108,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 972.263,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 972.434,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 972.604,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 972.817,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 971.572,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 971.718,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 971.812,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 966.037,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 966.245,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 966.493,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 966.693,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 966.832,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 967.051,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 967.219,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 967.383,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 961.544,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 961.721,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 962.046,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 962.292,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 962.501,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 962.676,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 960.313,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 960.464,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 960.667,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 960.872,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 960.831,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 955.109,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 955.269,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 955.56,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 955.862,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 956.026,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 956.177,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 956.4,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 956.543,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 950.833,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 951.02,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 951.123,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 951.302,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 952.184,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 952.349,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 952.521,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 946.841,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 947.045,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 947.135,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 947.327,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 947.474,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 947.688,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 947.834,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 942.061,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 942.296,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 942.476,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 942.648,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 942.782,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 942.909,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 942.959,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 939.345,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 939.54,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 939.678,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 939.85,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 939.995,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 940.038,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 934.278,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 934.476,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 934.764,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 935.033,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 935.17,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 935.329,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 935.533,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 935.659,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 929.959,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 930.134,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 930.181,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 929.883,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 930.022,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 930.125,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 930.325,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 930.423,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 924.617,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 924.862,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 925.115,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 925.354,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 925.468,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "idempotency",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 925.616,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    }
+  ],
+  "privacy": "Synthetic test tokens only; request keys and payment identifiers are omitted from samples."
+}

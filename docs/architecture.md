@@ -177,7 +177,9 @@ The repository protocol is the seam for the memory and SQLAlchemy
 implementations. The SQLAlchemy adapter writes payment and outbox rows in one
 session transaction; live migration, database row-lock, and cross-process
 behavior remain integration checks. Redis claims and Kafka publication are
-explicit runtime profiles, while durable worker delivery is still deferred.
+explicit runtime profiles. A bounded PostgreSQL temporary-table query run and
+a Redpanda consumer-group offset probe are recorded under
+`benchmark/results`; they are local evidence rather than production telemetry.
 
 ## Simulated outage timeline
 
@@ -194,9 +196,13 @@ This is a reproducible local simulation from `docs/runbook.md`, not a production
 
 ## Actual-observed implementation notes
 
-These notes describe behavior verified in the implementation and automated tests. They are not claims about a production outage, external latency, or benchmark performance.
+These notes describe behavior verified in the implementation, automated tests,
+and the committed bounded evidence artifacts. They are not claims about a
+production outage, external latency, or benchmark performance.
 
 - `tests/test_reliability.py::test_service_retries_transient_failure_then_fails_over_with_history` verifies transient failure retries, alternate-provider success, and recorded provider order.
 - `tests/test_reliability.py::test_timeout_retries_without_blind_cross_provider_charge` verifies that an ambiguous timeout does not invoke the alternate provider.
 - The current implementation uses an in-memory store and in-process locks, which is visible in `store.py` and `service.py`; process restart loses payment history.
-- `pytest -q` and `compileall` are the release checks for this local slice; no production incident or load benchmark is represented here.
+- `pytest -q` and `compileall` are the release checks for the local slice. The
+  measured load, query-plan, and Kafka offset runs in `benchmark/results` are
+  reproducible demonstrations with their environment and Git commit recorded.

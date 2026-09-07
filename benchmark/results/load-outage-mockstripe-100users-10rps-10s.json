@@ -1,0 +1,2066 @@
+{
+  "schema_version": 1,
+  "scenario": "outage",
+  "recorded_at_utc": "2026-09-07T23:31:32.789706+00:00",
+  "git_commit": "dfa7f19d789587085aeb5f403624d868a72126b4",
+  "command": "scripts/load_evidence.py --base-url http://127.0.0.1:18080 --scenario outage --users 100 --rate 10 --duration 10 --provider mockstripe --admin-token local-dev-only --output benchmark/results/load-outage-mockstripe-100users-10rps-10s.json",
+  "base_url": "http://127.0.0.1:18080",
+  "runtime": {
+    "python": "3.14.7",
+    "platform": "Linux-7.1.9-arch1-2-x86_64-with-glibc2.44"
+  },
+  "configuration": {
+    "users": 100,
+    "rate_per_second": 10.0,
+    "duration_seconds": 10.0,
+    "requests": null,
+    "timeout_seconds": 10.0,
+    "provider": "mockstripe"
+  },
+  "summary": {
+    "requests": 203,
+    "status_counts": {
+      "200": 3,
+      "201": 200
+    },
+    "network_errors": {},
+    "successful_payment_responses": 200,
+    "p50_latency_ms": 4.356,
+    "p95_latency_ms": 6.665,
+    "p99_latency_ms": 7.12,
+    "observed_requests_per_second": 10.184,
+    "elapsed_seconds": 19.933,
+    "distinct_payment_ids": 200,
+    "by_phase": {
+      "control": {
+        "requests": 3,
+        "status_counts": {
+          "200": 3
+        },
+        "p50_latency_ms": 2.937,
+        "p95_latency_ms": 2.937,
+        "p99_latency_ms": 2.937
+      },
+      "outage": {
+        "requests": 100,
+        "status_counts": {
+          "201": 100
+        },
+        "p50_latency_ms": 4.224,
+        "p95_latency_ms": 6.459,
+        "p99_latency_ms": 6.974
+      },
+      "recovery": {
+        "requests": 100,
+        "status_counts": {
+          "201": 100
+        },
+        "p50_latency_ms": 4.42,
+        "p95_latency_ms": 6.79,
+        "p99_latency_ms": 7.926
+      }
+    }
+  },
+  "details": {
+    "provider": "mockstripe",
+    "recovery_elapsed_ms": 9906.592,
+    "provider_snapshots": {
+      "before_fail": {
+        "status_code": 200,
+        "providers": [
+          {
+            "name": "mockstripe",
+            "healthy": true,
+            "circuit_state": "CLOSED",
+            "total_requests": 767,
+            "successes": 767,
+            "failures": 0,
+            "timeouts": 0
+          },
+          {
+            "name": "mockadyen",
+            "healthy": true,
+            "circuit_state": "CLOSED",
+            "total_requests": 818,
+            "successes": 818,
+            "failures": 0,
+            "timeouts": 0
+          },
+          {
+            "name": "mockrazorpay",
+            "healthy": true,
+            "circuit_state": "CLOSED",
+            "total_requests": 817,
+            "successes": 817,
+            "failures": 0,
+            "timeouts": 0
+          }
+        ]
+      },
+      "after_fail": {
+        "status_code": 200,
+        "providers": [
+          {
+            "name": "mockstripe",
+            "healthy": false,
+            "circuit_state": "CLOSED",
+            "total_requests": 767,
+            "successes": 767,
+            "failures": 0,
+            "timeouts": 0
+          },
+          {
+            "name": "mockadyen",
+            "healthy": true,
+            "circuit_state": "CLOSED",
+            "total_requests": 818,
+            "successes": 818,
+            "failures": 0,
+            "timeouts": 0
+          },
+          {
+            "name": "mockrazorpay",
+            "healthy": true,
+            "circuit_state": "CLOSED",
+            "total_requests": 817,
+            "successes": 817,
+            "failures": 0,
+            "timeouts": 0
+          }
+        ]
+      },
+      "after_outage": {
+        "status_code": 200,
+        "providers": [
+          {
+            "name": "mockstripe",
+            "healthy": false,
+            "circuit_state": "CLOSED",
+            "total_requests": 767,
+            "successes": 767,
+            "failures": 0,
+            "timeouts": 0
+          },
+          {
+            "name": "mockadyen",
+            "healthy": true,
+            "circuit_state": "CLOSED",
+            "total_requests": 868,
+            "successes": 868,
+            "failures": 0,
+            "timeouts": 0
+          },
+          {
+            "name": "mockrazorpay",
+            "healthy": true,
+            "circuit_state": "CLOSED",
+            "total_requests": 867,
+            "successes": 867,
+            "failures": 0,
+            "timeouts": 0
+          }
+        ]
+      },
+      "after_recover": {
+        "status_code": 200,
+        "providers": [
+          {
+            "name": "mockstripe",
+            "healthy": true,
+            "circuit_state": "CLOSED",
+            "total_requests": 767,
+            "successes": 767,
+            "failures": 0,
+            "timeouts": 0
+          },
+          {
+            "name": "mockadyen",
+            "healthy": true,
+            "circuit_state": "CLOSED",
+            "total_requests": 868,
+            "successes": 868,
+            "failures": 0,
+            "timeouts": 0
+          },
+          {
+            "name": "mockrazorpay",
+            "healthy": true,
+            "circuit_state": "CLOSED",
+            "total_requests": 867,
+            "successes": 867,
+            "failures": 0,
+            "timeouts": 0
+          }
+        ]
+      },
+      "after_recovery": {
+        "status_code": 200,
+        "providers": [
+          {
+            "name": "mockstripe",
+            "healthy": true,
+            "circuit_state": "CLOSED",
+            "total_requests": 801,
+            "successes": 801,
+            "failures": 0,
+            "timeouts": 0
+          },
+          {
+            "name": "mockadyen",
+            "healthy": true,
+            "circuit_state": "CLOSED",
+            "total_requests": 901,
+            "successes": 901,
+            "failures": 0,
+            "timeouts": 0
+          },
+          {
+            "name": "mockrazorpay",
+            "healthy": true,
+            "circuit_state": "CLOSED",
+            "total_requests": 900,
+            "successes": 900,
+            "failures": 0,
+            "timeouts": 0
+          }
+        ]
+      }
+    },
+    "outage_request_deltas": {
+      "mockrazorpay": 50,
+      "mockadyen": 50,
+      "mockstripe": 0
+    },
+    "failover_observed": true
+  },
+  "samples": [
+    {
+      "phase": "control",
+      "operation": "POST admin/fail",
+      "status_code": 200,
+      "latency_ms": 3.667,
+      "result_status": null,
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "control",
+      "operation": "POST admin/recover",
+      "status_code": 200,
+      "latency_ms": 1.958,
+      "result_status": null,
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "control",
+      "operation": "POST admin/recover",
+      "status_code": 200,
+      "latency_ms": 2.937,
+      "result_status": null,
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.843,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.8,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.687,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.764,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.078,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.636,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.705,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.958,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.577,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.224,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.301,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.553,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.028,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.939,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.872,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.396,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.459,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.944,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.472,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.337,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.024,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.724,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.383,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.356,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.695,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.917,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.148,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.263,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.373,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.167,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 7.303,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.553,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.535,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.066,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.087,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.698,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.845,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.964,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.945,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.104,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.337,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.222,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.923,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.018,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.418,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.201,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.876,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.792,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.826,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.788,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.239,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.43,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.87,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.807,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.667,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.321,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.077,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.503,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.53,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.135,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.374,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.313,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.911,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.386,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.318,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.485,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.438,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.147,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.006,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.466,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.96,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.801,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.36,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.974,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.962,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.691,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.657,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.713,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.207,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.571,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.3,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.223,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.677,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.995,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.118,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.427,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.121,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.526,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.679,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.03,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.982,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.805,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.052,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.986,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.965,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.142,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.788,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.203,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.009,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "outage",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.18,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 2.843,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.797,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.086,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.916,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.965,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.393,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.734,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.611,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.312,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.358,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.815,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.678,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.342,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.833,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.364,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.881,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.701,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 8.276,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.583,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.246,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.563,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.628,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.494,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.441,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.861,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.473,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.135,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 7.063,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.39,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.011,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.536,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.847,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.887,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.946,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.331,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.256,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.915,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.253,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.845,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.234,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.899,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.551,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.733,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.904,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.138,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.318,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.568,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.861,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.314,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.708,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.683,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.218,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.851,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.633,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.25,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 7.926,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.79,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.427,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 7.12,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.444,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.42,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.196,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.816,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.525,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.964,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.441,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.721,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.916,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.399,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.524,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.738,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.026,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.333,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.909,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.914,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.776,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.092,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 5.101,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.921,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.752,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.672,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.551,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.716,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.404,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.43,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.254,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.902,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.614,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.615,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.229,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.71,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.313,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.726,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 6.665,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.165,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.282,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.717,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.491,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 3.783,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    },
+    {
+      "phase": "recovery",
+      "operation": "POST /api/v1/payments",
+      "status_code": 201,
+      "latency_ms": 4.489,
+      "result_status": "SUCCEEDED",
+      "error_code": null,
+      "network_error": null
+    }
+  ],
+  "privacy": "Synthetic test tokens only; request keys and payment identifiers are omitted from samples."
+}
