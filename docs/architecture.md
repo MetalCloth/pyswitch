@@ -66,6 +66,84 @@ sequenceDiagram
 
 Provider names and tokens stay out of the client payment response. Attempt history is retained internally so a later durable repository can expose audit evidence without changing the public payment contract.
 
+## Data model
+
+The optional SQLAlchemy model and Alembic revision mirror this shape. The running default still uses the equivalent Python dataclasses in the in-memory repository.
+
+```mermaid
+erDiagram
+    MERCHANT ||--o{ PAYMENT : owns
+    PAYMENT ||--o{ PAYMENT_ATTEMPT : records
+    PAYMENT ||--o{ REFUND : has
+    PAYMENT ||--o{ OUTBOX_EVENT : emits
+    MERCHANT {
+        string id PK
+        datetime created_at
+    }
+    PAYMENT {
+        uuid id PK
+        string merchant_id FK
+        int amount
+        string currency
+        string status
+        string idempotency_key
+        string request_fingerprint
+        string provider
+        int refunded_amount
+        datetime created_at
+    }
+    PAYMENT_ATTEMPT {
+        uuid id PK
+        uuid payment_id FK
+        string provider
+        int attempt_number
+        string result
+        string error_code
+        datetime created_at
+    }
+    REFUND {
+        uuid id PK
+        uuid payment_id FK
+        int amount
+        string provider_reference
+        datetime created_at
+    }
+    OUTBOX_EVENT {
+        uuid id PK
+        uuid aggregate_id
+        string event_type
+        json payload
+        datetime published_at
+    }
+```
+
+## Payment and refund transaction boundaries
+
+```mermaid
+sequenceDiagram
+    participant S as PaymentService
+    participant R as Repository
+    participant P as Original provider
+    S->>R: acquire merchant/key or payment lock
+    S->>R: read existing payment
+    alt new payment
+        S->>P: create synthetic payment
+        P-->>S: result
+        S->>R: save payment + attempts
+    else idempotency replay
+        R-->>S: stored payment
+    end
+    S->>R: release payment lock
+    S->>R: acquire refund lock
+    S->>R: read refunded_amount
+    S->>P: refund remaining or requested amount
+    P-->>S: refund reference
+    S->>R: save refund + updated payment total
+    S->>R: release refund lock
+```
+
+The repository protocol is the seam for replacing these lock-and-save operations with PostgreSQL transactions. Redis claims, database row locks, and an outbox write in the same database transaction are deferred external-service work.
+
 ## Simulated outage timeline
 
 This is a reproducible local simulation from `docs/runbook.md`, not a production incident:
@@ -87,4 +165,3 @@ These notes describe behavior verified in the implementation and automated tests
 - `tests/test_reliability.py::test_timeout_retries_without_blind_cross_provider_charge` verifies that an ambiguous timeout does not invoke the alternate provider.
 - The current implementation uses an in-memory store and in-process locks, which is visible in `store.py` and `service.py`; process restart loses payment history.
 - `pytest -q` and `compileall` are the release checks for this local slice; no production incident or load benchmark is represented here.
-

@@ -56,10 +56,11 @@ curl -X PUT http://127.0.0.1:8000/api/v1/admin/providers/mockstripe/config \
   -d '{"min_latency_ms":25,"max_latency_ms":50}'
 ```
 
-The current slice uses an in-memory store so it is easy to run in a clean checkout. PostgreSQL/SQLAlchemy, Redis-backed idempotency, refunds, events, metrics, and Compose remain later milestones. See [`docs/adr/0001-reliability-policy.md`](docs/adr/0001-reliability-policy.md) and [`docs/runbook.md`](docs/runbook.md) for the simulated failure procedure.
+The current slice uses an in-memory store so it is easy to run in a clean checkout. Fingerprint conflict detection and full/partial refunds are implemented within one process. Typed repository and optional SQLAlchemy/Alembic scaffolding are present behind `pip install -e '.[db]'`, but PostgreSQL is not wired into the running app. Redis-backed idempotency, durable outbox delivery, events, metrics, and Compose remain deferred milestones. See [`docs/adr/0001-reliability-policy.md`](docs/adr/0001-reliability-policy.md) and [`docs/runbook.md`](docs/runbook.md) for the simulated failure procedure.
 
 Further design references:
 
 - [`docs/architecture.md`](docs/architecture.md) — component boundaries, data flow, payment sequence, and simulated outage timeline.
 - [`docs/state-machines.md`](docs/state-machines.md) — payment, retry, circuit, and idempotency state machines.
 - [`docs/adr/0002-provider-neutral-orchestration.md`](docs/adr/0002-provider-neutral-orchestration.md) — provider-neutral orchestration and routing decision.
+- [`docs/adr/0003-data-layer-idempotency-and-refunds.md`](docs/adr/0003-data-layer-idempotency-and-refunds.md) — repository seam, fingerprint conflicts, refunds, and deferred external services.
