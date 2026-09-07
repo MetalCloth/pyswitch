@@ -13,6 +13,7 @@ class PaymentStatus(StrEnum):
     PROCESSING = "PROCESSING"
     SUCCEEDED = "SUCCEEDED"
     FAILED = "FAILED"
+    REFUNDED = "REFUNDED"
 
 
 @dataclass(slots=True)
@@ -23,6 +24,15 @@ class PaymentAttempt:
     latency_ms: float
     created_at: datetime = field(default_factory=utcnow)
     error_code: str | None = None
+
+
+@dataclass(slots=True)
+class Refund:
+    payment_id: UUID
+    amount: int
+    provider_reference: str | None = None
+    id: UUID = field(default_factory=uuid4)
+    created_at: datetime = field(default_factory=utcnow)
 
 
 @dataclass(slots=True)
@@ -38,4 +48,7 @@ class Payment:
     updated_at: datetime = field(default_factory=utcnow)
     attempts: list[PaymentAttempt] = field(default_factory=list)
     provider_reference: str | None = None
-
+    provider: str | None = None
+    request_fingerprint: str = ""
+    refunded_amount: int = 0
+    refunds: list[Refund] = field(default_factory=list)

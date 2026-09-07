@@ -11,13 +11,17 @@ dependencies = [
   "fastapi>=0.115,<1",
   "uvicorn[standard]>=0.30,<1",
   "pydantic>=2.7,<3",
+  "prometheus-client>=0.20,<1",
 ]
 
 [project.optional-dependencies]
 dev = ["httpx>=0.27,<1", "pytest>=8,<9", "pytest-asyncio>=0.23,<1"]
+db = ["sqlalchemy[asyncio]>=2.0,<3", "asyncpg>=0.29,<1", "alembic>=1.13,<2"]
+redis = ["redis>=5,<6"]
+events = ["aiokafka>=0.10,<1"]
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/pyswitch"]
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
