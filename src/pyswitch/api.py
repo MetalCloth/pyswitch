@@ -1,8 +1,10 @@
 from contextlib import asynccontextmanager
+import time
 from uuid import UUID, uuid4
 
 from fastapi import Depends, FastAPI, Header, Query, Request
 from fastapi.responses import JSONResponse
+from fastapi.responses import Response
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from fastapi.exceptions import RequestValidationError
 
@@ -10,6 +12,7 @@ from .config import Settings
 from .domain import Payment, PaymentStatus
 from .idempotency import IdempotencyUnavailable
 from .rate_limit import InMemoryTokenBucketLimiter, RateLimitUnavailable, RateLimiter
+from .observability import Metrics, log_request
 from .providers.base import ProviderError
 from .providers.mock import MockAdyenProvider, MockRazorpayProvider, MockStripeProvider
 from .service import IdempotencyConflict, PaymentInput, PaymentService, RefundError
@@ -85,10 +88,13 @@ def _payment_response(payment: Payment, request_id: str) -> PaymentResponse:
     return PaymentResponse(id=payment.id, merchant_id=payment.merchant_id, amount=payment.amount, currency=payment.currency, status=payment.status, created_at=payment.created_at.isoformat(), request_id=request_id)
 
 
-def create_app(settings: Settings | None = None, service: PaymentService | None = None, rate_limiter: RateLimiter | None = None) -> FastAPI:
+def create_app(settings: Settings | None = None, service: PaymentService | None = None, rate_limiter: RateLimiter | None = None, metrics: Metrics | None = None) -> FastAPI:
     settings = settings or Settings.from_env()
+    metrics = metrics or Metrics()
     if service is None:
-        service = PaymentService([MockStripeProvider(), MockAdyenProvider(), MockRazorpayProvider()], InMemoryPaymentStore())
+        service = PaymentService([MockStripeProvider(), MockAdyenProvider(), MockRazorpayProvider()], InMemoryPaymentStore(), metrics=metrics)
+    else:
+        service.metrics = metrics
     rate_limiter = rate_limiter or InMemoryTokenBucketLimiter(capacity=settings.rate_limit_capacity, refill_per_second=settings.rate_limit_refill_per_second)
 
     @asynccontextmanager
@@ -99,11 +105,22 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
     app.state.service = service
     app.state.settings = settings
     app.state.rate_limiter = rate_limiter
+    app.state.metrics = metrics
 
     @app.middleware("http")
     async def request_id(request: Request, call_next):
         request.state.request_id = request.headers.get("X-Request-ID", str(uuid4()))
+        started = time.perf_counter()
         response = await call_next(request)
+        log_request(
+            request_id=request.state.request_id,
+            method=request.method,
+            path=request.url.path,
+            status_code=response.status_code,
+            latency_ms=(time.perf_counter() - started) * 1000,
+            merchant_id=getattr(request.state, "merchant_id", None),
+            payment_id=getattr(request.state, "payment_id", None),
+        )
         response.headers["X-Request-ID"] = request.state.request_id
         return response
 
@@ -153,6 +170,10 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
         providers = request.app.state.service.providers
         return {"status": "ready", "providers": {p.name: await p.health_check() for p in providers}}
 
+    @app.get("/metrics")
+    async def metrics_endpoint(request: Request):
+        return Response(content=request.app.state.metrics.render(), media_type="text/plain; version=0.0.4")
+
     @app.post("/api/v1/payments", response_model=PaymentResponse, status_code=201)
     async def create_payment(payload: CreatePaymentRequest, request: Request, idempotency_key: str | None = Header(default=None, alias="Idempotency-Key")):
         limit = await request.app.state.rate_limiter.consume(payload.merchant_id)
@@ -161,6 +182,7 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
             "X-RateLimit-Remaining": str(limit.remaining),
         }
         if not limit.allowed:
+            request.app.state.metrics.rate_limit_rejections_total.inc()
             rate_headers["Retry-After"] = str(limit.retry_after_seconds)
             return JSONResponse(status_code=429, headers=rate_headers, content={"error": {"code": "RATE_LIMITED", "message": "Merchant rate limit exceeded", "request_id": request.state.request_id}})
         if not idempotency_key:
@@ -169,7 +191,9 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
             return JSONResponse(status_code=422, headers=rate_headers, content={"error": {"code": "VALIDATION_ERROR", "message": "Unsupported currency", "request_id": request.state.request_id}})
         if payload.payment_method.type != "card" or not payload.payment_method.token.startswith("test_"):
             return JSONResponse(status_code=422, headers=rate_headers, content={"error": {"code": "VALIDATION_ERROR", "message": "A synthetic payment token is required", "request_id": request.state.request_id}})
+        request.state.merchant_id = payload.merchant_id
         payment = await request.app.state.service.create(PaymentInput(payload.merchant_id, payload.amount, payload.currency, payload.payment_method.type, payload.payment_method.token, idempotency_key))
+        request.state.payment_id = str(payment.id)
         response = _payment_response(payment, request.state.request_id)
         return JSONResponse(status_code=201, headers=rate_headers, content=response.model_dump(mode="json"))
 

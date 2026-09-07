@@ -8,6 +8,7 @@ from .domain import Payment, PaymentAttempt, PaymentStatus, Refund
 from .events import EventEnvelope, EventType
 from .idempotency import IdempotencyCoordinator, IdempotencyStatus, IdempotencyUnavailable, MemoryIdempotencyCoordinator
 from .outbox import OutboxRepository
+from .observability import Metrics
 from .providers.base import PaymentProvider, ProviderError
 from .reliability import CircuitBreaker, RetryPolicy, is_retryable, run_with_retry
 from .routing import RoundRobinRouter
@@ -57,6 +58,7 @@ class PaymentService:
         circuit_cooldown_seconds: float = 30.0,
         idempotency: IdempotencyCoordinator | None = None,
         outbox: OutboxRepository | None = None,
+        metrics: Metrics | None = None,
     ) -> None:
         self.providers = providers
         self.store = store
@@ -64,6 +66,7 @@ class PaymentService:
         self.retry_policy = retry_policy or RetryPolicy()
         self.idempotency = idempotency or MemoryIdempotencyCoordinator()
         self.outbox = outbox if outbox is not None else (store if hasattr(store, "append") else None)
+        self.metrics = metrics
         self.circuits = {
             provider.name: CircuitBreaker(
                 failure_threshold=circuit_failure_threshold,
@@ -82,10 +85,19 @@ class PaymentService:
     async def _record_success(self, provider: PaymentProvider) -> None:
         async with self._circuit_locks[provider.name]:
             self.circuits[provider.name].record_success()
+            self._set_circuit_metric(provider.name)
 
     async def _record_failure(self, provider: PaymentProvider) -> None:
         async with self._circuit_locks[provider.name]:
             self.circuits[provider.name].record_failure()
+            self._set_circuit_metric(provider.name)
+
+    def _set_circuit_metric(self, provider_name: str) -> None:
+        if self.metrics is None:
+            return
+        state = self.circuits[provider_name].state.value
+        for circuit_state in ("CLOSED", "OPEN", "HALF_OPEN"):
+            self.metrics.provider_circuit_state.labels(provider=provider_name, state=circuit_state).set(circuit_state == state)
 
     def _event(self, payment: Payment, event_type: EventType, status: PaymentStatus | None = None) -> EventEnvelope:
         return EventEnvelope(
@@ -120,6 +132,13 @@ class PaymentService:
                 )
             except ProviderError as error:
                 await self._record_failure(provider)
+                if self.metrics is not None:
+                    error_code = error.code if error.code in {"PROVIDER_TIMEOUT", "PROVIDER_UNAVAILABLE", "PAYMENT_DECLINED", "HTTP_502", "HTTP_503"} else "other"
+                    self.metrics.provider_requests_total.labels(provider=provider.name, result="error").inc()
+                    self.metrics.provider_failures_total.labels(provider=provider.name, error_code=error_code).inc()
+                    self.metrics.provider_latency_seconds.labels(provider=provider.name).observe(time.perf_counter() - started)
+                    if is_retryable(error):
+                        self.metrics.retries_total.labels(provider=provider.name).inc()
                 attempts.append(
                     PaymentAttempt(
                         provider.name,
@@ -131,6 +150,9 @@ class PaymentService:
                 )
                 raise
             await self._record_success(provider)
+            if self.metrics is not None:
+                self.metrics.provider_requests_total.labels(provider=provider.name, result="success").inc()
+                self.metrics.provider_latency_seconds.labels(provider=provider.name).observe(time.perf_counter() - started)
             attempts.append(
                 PaymentAttempt(provider.name, attempt_number, "SUCCEEDED", (time.perf_counter() - started) * 1000)
             )
@@ -152,6 +174,8 @@ class PaymentService:
         if decision.status is IdempotencyStatus.CONFLICT:
             raise IdempotencyConflict("Idempotency-Key was reused with different payment data")
         if decision.status is IdempotencyStatus.COMPLETED:
+            if self.metrics is not None:
+                self.metrics.idempotency_hits_total.inc()
             existing = await self.store.get(decision.payment_id) if decision.payment_id else None
             if existing is None:
                 raise IdempotencyUnavailable("Idempotency result is missing its authoritative payment")
@@ -192,6 +216,8 @@ class PaymentService:
                         ],
                     )
                     await self.idempotency.complete(data.merchant_id, data.idempotency_key, fingerprint, payment.id)
+                    if self.metrics is not None:
+                        self.metrics.payments_total.labels(status=payment.status.value).inc()
                     claimed = False
                     return payment
                 except ProviderError as exc:
@@ -208,6 +234,8 @@ class PaymentService:
                 ],
             )
             await self.idempotency.complete(data.merchant_id, data.idempotency_key, fingerprint, payment.id)
+            if self.metrics is not None:
+                self.metrics.payments_total.labels(status=payment.status.value).inc()
             claimed = False
             raise last_error or ProviderError("PROVIDER_UNAVAILABLE", "No provider completed the payment")
         except BaseException:
