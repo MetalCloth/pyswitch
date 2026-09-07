@@ -21,6 +21,31 @@ curl -X POST http://127.0.0.1:8000/api/v1/payments \
 
 `POST /api/v1/payments`, `GET /api/v1/payments/{id}`, `GET /api/v1/payments`, `GET /api/v1/providers`, `GET /api/v1/providers/{provider}`, `/health`, and `/ready` are included in this first vertical slice. Provider selection is round robin among healthy providers. Provider choice stays in internal attempt history and is not returned by the payment API.
 
+The reliability slice retries transient provider-unavailable and 502/503 errors with bounded exponential backoff and jitter. Each provider has an independent `CLOSED -> OPEN -> HALF_OPEN` circuit. Failover is allowed for unavailable providers after retries; an ambiguous timeout stays on the original provider and is never blindly charged on a second provider.
+
+```mermaid
+flowchart LR
+    Client --> API[FastAPI API]
+    API --> Service[Payment service]
+    Service --> Router[Round robin router]
+    Router --> Circuits[Independent provider circuits]
+    Circuits --> Stripe[Mock Stripe]
+    Circuits --> Adyen[Mock Adyen]
+    Circuits --> Razorpay[Mock Razorpay]
+    Service --> Store[(In-memory payment and attempt store)]
+```
+
+```mermaid
+stateDiagram-v2
+    [*] --> CLOSED
+    CLOSED --> CLOSED: success / reset failures
+    CLOSED --> OPEN: transient failures reach threshold
+    OPEN --> OPEN: request before cooldown
+    OPEN --> HALF_OPEN: cooldown elapsed / one probe
+    HALF_OPEN --> CLOSED: probe succeeds
+    HALF_OPEN --> OPEN: probe fails
+```
+
 Local failure demonstrations use `X-Admin-Token: local-dev-only` (change `PYSWITCH_ADMIN_TOKEN` outside local demos):
 
 ```bash
@@ -31,4 +56,4 @@ curl -X PUT http://127.0.0.1:8000/api/v1/admin/providers/mockstripe/config \
   -d '{"min_latency_ms":25,"max_latency_ms":50}'
 ```
 
-The first slice uses an in-memory store so it is easy to run in a clean checkout. PostgreSQL/SQLAlchemy, Redis idempotency, retries, circuit breakers, refunds, events, metrics, and Compose are subsequent milestones from `PYSWITCH-GOAL.md`.
+The current slice uses an in-memory store so it is easy to run in a clean checkout. PostgreSQL/SQLAlchemy, Redis-backed idempotency, refunds, events, metrics, and Compose remain later milestones. See [`docs/adr/0001-reliability-policy.md`](docs/adr/0001-reliability-policy.md) and [`docs/runbook.md`](docs/runbook.md) for the simulated failure procedure.
