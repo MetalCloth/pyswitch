@@ -146,14 +146,16 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
 
     @app.get("/api/v1/providers")
     async def providers(request: Request):
-        return [{"name": p.name, "healthy": await p.health_check(), "config": _provider_config(p)} for p in request.app.state.service.providers]
+        service = request.app.state.service
+        return [{"name": p.name, "healthy": await p.health_check(), "config": _provider_config(p), "circuit_state": service.circuits[p.name].state, "consecutive_failures": service.circuits[p.name].consecutive_failures} for p in service.providers]
 
     @app.get("/api/v1/providers/{provider_name}")
     async def provider_detail(provider_name: str, request: Request):
         provider = next((p for p in request.app.state.service.providers if p.name == provider_name), None)
         if provider is None:
             return JSONResponse(status_code=404, content={"error": {"code": "VALIDATION_ERROR", "message": "Unknown provider", "request_id": request.state.request_id}})
-        return {"name": provider.name, "healthy": await provider.health_check(), "config": _provider_config(provider)}
+        circuit = request.app.state.service.circuits[provider.name]
+        return {"name": provider.name, "healthy": await provider.health_check(), "config": _provider_config(provider), "circuit_state": circuit.state, "consecutive_failures": circuit.consecutive_failures}
 
     @app.put("/api/v1/admin/providers/{provider_name}/config")
     async def configure_provider(provider_name: str, payload: ProviderConfigRequest, request: Request, _: None = Depends(require_admin)):
@@ -182,6 +184,7 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
         if provider is None:
             return JSONResponse(status_code=404, content={"error": {"code": "VALIDATION_ERROR", "message": "Unknown provider", "request_id": request.state.request_id}})
         provider.configure(forced_failure=False)
+        request.app.state.service.circuits[provider.name].record_success()
         return {"name": provider.name, "healthy": True}
 
     return app

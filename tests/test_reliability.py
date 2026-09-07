@@ -1,6 +1,9 @@
 import pytest
 
 from pyswitch.providers.base import ProviderError
+from pyswitch.providers.mock import MockAdyenProvider, MockStripeProvider
+from pyswitch.service import PaymentInput, PaymentService
+from pyswitch.store import InMemoryPaymentStore
 from pyswitch.reliability import CircuitBreaker, CircuitState, RetryPolicy, is_retryable, run_with_retry
 
 
@@ -49,3 +52,40 @@ def test_circuit_breaker_opens_cools_down_and_recovers():
     assert breaker.state is CircuitState.CLOSED
     assert breaker.consecutive_failures == 0
 
+
+@pytest.mark.asyncio
+async def test_service_retries_transient_failure_then_fails_over_with_history():
+    failing = MockStripeProvider()
+    failing.configure(success_rate=0.0, server_error_probability=1.0)
+    backup = MockAdyenProvider()
+    service = PaymentService(
+        [failing, backup],
+        InMemoryPaymentStore(),
+        retry_policy=RetryPolicy(max_attempts=3, initial_delay_seconds=0, max_delay_seconds=0, jitter_ratio=0),
+        circuit_failure_threshold=2,
+    )
+    payment = await service.create(
+        PaymentInput("merchant", 100, "INR", "card", "test_card", "failover-1")
+    )
+    assert payment.status == "SUCCEEDED"
+    assert [attempt.provider for attempt in payment.attempts] == ["mockstripe", "mockstripe", "mockadyen"]
+    assert payment.attempts[0].result == "RETRY"
+    assert payment.attempts[1].error_code == "PROVIDER_UNAVAILABLE"
+    assert service.circuits["mockstripe"].state is CircuitState.OPEN
+
+
+@pytest.mark.asyncio
+async def test_timeout_retries_without_blind_cross_provider_charge():
+    timing_out = MockStripeProvider()
+    timing_out.configure(success_rate=0.0, timeout_probability=1.0)
+    backup = MockAdyenProvider()
+    service = PaymentService(
+        [timing_out, backup],
+        InMemoryPaymentStore(),
+        retry_policy=RetryPolicy(max_attempts=2, initial_delay_seconds=0, max_delay_seconds=0, jitter_ratio=0),
+        circuit_failure_threshold=5,
+    )
+    with pytest.raises(ProviderError) as raised:
+        await service.create(PaymentInput("merchant", 100, "INR", "card", "test_card", "timeout-1"))
+    assert raised.value.code == "PROVIDER_TIMEOUT"
+    assert service.circuits["mockadyen"].consecutive_failures == 0
