@@ -1,6 +1,7 @@
 """Alembic entrypoint for the optional PostgreSQL data layer."""
 
 from logging.config import fileConfig
+import os
 
 from alembic import context
 from sqlalchemy import pool
@@ -12,6 +13,9 @@ from pyswitch.db.models import Base
 config = context.config
 if config.config_file_name:
     fileConfig(config.config_file_name)
+database_url = os.getenv("PYSWITCH_DATABASE_URL")
+if database_url:
+    config.set_main_option("sqlalchemy.url", database_url.replace("%", "%%"))
 target_metadata = Base.metadata
 
 
@@ -40,4 +44,3 @@ else:
     import asyncio
 
     asyncio.run(run_migrations_online())
-

@@ -19,13 +19,13 @@ curl -X POST http://127.0.0.1:8000/api/v1/payments \
   -d '{"merchant_id":"merchant_123","amount":500000,"currency":"INR","payment_method":{"type":"card","token":"test_card"}}'
 ```
 
-The local full-stack configuration is:
+The external full-stack configuration is:
 
 ```bash
 docker compose up --build
 ```
 
-It exposes the API on `8000`, Prometheus on `9090`, Grafana on `3000` (`admin/admin`), PostgreSQL on `5432`, Redis on `6379`, and Redpanda's external Kafka port on `19092`. Container healthchecks gate startup order. `/metrics` is available on the API.
+It exposes the API on `8000`, Prometheus on `9090`, Grafana on `3000` (`admin/admin`), PostgreSQL on `5432`, Redis on `6379`, and Redpanda's external Kafka port on `19092`. The app container selects the PostgreSQL, Redis, and Kafka adapters explicitly, runs `alembic upgrade head` before starting Uvicorn, and waits on dependency healthchecks. `/metrics` is available on the API. The standalone command above keeps the default process-local profile.
 
 Runtime dependencies are selected explicitly with `PYSWITCH_STORAGE_BACKEND=memory|postgres`, `PYSWITCH_COORDINATION_BACKEND=memory|redis`, and `PYSWITCH_EVENT_BACKEND=memory|kafka`. Connection variables are `PYSWITCH_DATABASE_URL`, `PYSWITCH_REDIS_URL`, `PYSWITCH_KAFKA_BOOTSTRAP_SERVERS`, and `PYSWITCH_KAFKA_TOPIC`; their defaults target the local Compose service names. The default values keep the app process-local. See [`docs/runtime-profiles.md`](docs/runtime-profiles.md) for the complete contract and optional dependency commands.
 
@@ -76,7 +76,7 @@ curl -X PUT http://127.0.0.1:8000/api/v1/admin/providers/mockstripe/config \
   -d '{"min_latency_ms":25,"max_latency_ms":50}'
 ```
 
-The default profile uses an in-memory store so it is easy to run in a clean checkout. Fingerprint conflict detection returns `DUPLICATE_REQUEST` when a merchant reuses a key with different payment data. Full and partial refunds are serialized per payment within one process. Selecting `PYSWITCH_STORAGE_BACKEND=postgres` constructs the optional SQLAlchemy repository; selecting `PYSWITCH_COORDINATION_BACKEND=redis` constructs Redis idempotency and rate-limit clients. Install the matching extras first. Migrations, live database/Redis behavior, durable outbox delivery, and external failure evidence remain unverified. See [`docs/adr/0001-reliability-policy.md`](docs/adr/0001-reliability-policy.md) and [`docs/runbook.md`](docs/runbook.md) for the simulated provider failure procedure.
+The default profile uses an in-memory store so it is easy to run in a clean checkout. Fingerprint conflict detection returns `DUPLICATE_REQUEST` when a merchant reuses a key with different payment data. Full and partial refunds are serialized per payment within one process. Selecting `PYSWITCH_STORAGE_BACKEND=postgres` constructs the SQLAlchemy repository; selecting `PYSWITCH_COORDINATION_BACKEND=redis` constructs Redis idempotency and rate-limit clients. The image installs the matching optional extras, and the Compose entrypoint applies migrations before startup. Live adapter behavior is covered only when `PYSWITCH_RUN_INTEGRATION=1` is set in an environment with the services available; otherwise those tests skip. See [`docs/adr/0001-reliability-policy.md`](docs/adr/0001-reliability-policy.md) and [`docs/runbook.md`](docs/runbook.md) for the simulated provider failure procedure.
 
 Versioned payment/refund events, an in-memory transactional outbox seam, an in-memory broker, and idempotent consumer contracts are now implemented for local testing. The optional Kafka-compatible adapter is available behind `pip install -e '.[events]'`; Compose provisions Redpanda, while PostgreSQL outbox wiring, live broker workers, durable delivery, and external consumer effects remain deferred.
 
@@ -100,4 +100,4 @@ Further design references:
 - [`docs/adr/0009-operational-health-evidence.md`](docs/adr/0009-operational-health-evidence.md) — circuit transition evidence, readiness, and list filters.
 - [`docs/load-testing.md`](docs/load-testing.md) — optional Locust scenario and opt-in live dependency smoke checks.
 
-Known environment limits: the default app still uses in-memory payment storage, Redis seams, and broker; Compose provisions PostgreSQL, Redis, and Redpanda but does not wire their clients into the running service. Grafana and Prometheus files are configuration, not collected performance evidence. No load-test, delivery, latency, or recovery numbers are claimed.
+Known environment limits: standalone local mode remains process-local, while Compose exercises the selected PostgreSQL, Redis, and Kafka adapters after migrations. Grafana and Prometheus files are configuration, not collected performance evidence. No load-test, delivery, latency, or recovery numbers are claimed.

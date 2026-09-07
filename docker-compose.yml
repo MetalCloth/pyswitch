@@ -5,6 +5,13 @@ services:
       - "8000:8000"
     environment:
       PYSWITCH_ADMIN_TOKEN: local-dev-only
+      PYSWITCH_STORAGE_BACKEND: postgres
+      PYSWITCH_COORDINATION_BACKEND: redis
+      PYSWITCH_EVENT_BACKEND: kafka
+      PYSWITCH_DATABASE_URL: postgresql+asyncpg://pyswitch:pyswitch@postgres:5432/pyswitch
+      PYSWITCH_REDIS_URL: redis://redis:6379/0
+      PYSWITCH_KAFKA_BOOTSTRAP_SERVERS: redpanda:9092
+      PYSWITCH_KAFKA_TOPIC: pyswitch.events
       PYSWITCH_RATE_LIMIT_CAPACITY: "60"
       PYSWITCH_RATE_LIMIT_REFILL_PER_SECOND: "1"
     depends_on:
@@ -106,4 +113,3 @@ services:
 volumes:
   postgres-data:
   redpanda-data:
-
