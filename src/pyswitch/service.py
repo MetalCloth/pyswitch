@@ -5,6 +5,7 @@ import time
 from dataclasses import dataclass
 
 from .domain import Payment, PaymentAttempt, PaymentStatus, Refund
+from .idempotency import IdempotencyCoordinator, IdempotencyStatus, IdempotencyUnavailable, MemoryIdempotencyCoordinator
 from .providers.base import PaymentProvider, ProviderError
 from .reliability import CircuitBreaker, RetryPolicy, is_retryable, run_with_retry
 from .routing import RoundRobinRouter
@@ -52,11 +53,13 @@ class PaymentService:
         retry_policy: RetryPolicy | None = None,
         circuit_failure_threshold: int = 3,
         circuit_cooldown_seconds: float = 30.0,
+        idempotency: IdempotencyCoordinator | None = None,
     ) -> None:
         self.providers = providers
         self.store = store
         self.router = RoundRobinRouter()
         self.retry_policy = retry_policy or RetryPolicy()
+        self.idempotency = idempotency or MemoryIdempotencyCoordinator()
         self.circuits = {
             provider.name: CircuitBreaker(
                 failure_threshold=circuit_failure_threshold,
@@ -65,7 +68,6 @@ class PaymentService:
             for provider in providers
         }
         self._circuit_locks = {provider.name: asyncio.Lock() for provider in providers}
-        self._idempotency_locks: dict[tuple[str, str], asyncio.Lock] = {}
         self._refund_locks: dict[str, asyncio.Lock] = {}
         self._lock = asyncio.Lock()
 
@@ -123,20 +125,22 @@ class PaymentService:
 
     async def create(self, data: PaymentInput) -> Payment:
         fingerprint = request_fingerprint(data)
-        existing = await self.store.get_by_idempotency(data.merchant_id, data.idempotency_key)
-        if existing:
-            if existing.request_fingerprint != fingerprint:
-                raise IdempotencyConflict("Idempotency-Key was reused with different payment data")
+        decision = await self.idempotency.acquire(data.merchant_id, data.idempotency_key, fingerprint)
+        if decision.status is IdempotencyStatus.CONFLICT:
+            raise IdempotencyConflict("Idempotency-Key was reused with different payment data")
+        if decision.status is IdempotencyStatus.COMPLETED:
+            existing = await self.store.get(decision.payment_id) if decision.payment_id else None
+            if existing is None:
+                raise IdempotencyUnavailable("Idempotency result is missing its authoritative payment")
             return existing
-        # A per-key lock ensures duplicate requests cannot execute two provider calls.
-        key = (data.merchant_id, data.idempotency_key)
-        async with self._lock:
-            lock = self._idempotency_locks.setdefault(key, asyncio.Lock())
-        async with lock:
-            existing = await self.store.get_by_idempotency(*key)
+        claimed = True
+        try:
+            existing = await self.store.get_by_idempotency(data.merchant_id, data.idempotency_key)
             if existing:
                 if existing.request_fingerprint != fingerprint:
                     raise IdempotencyConflict("Idempotency-Key was reused with different payment data")
+                await self.idempotency.complete(data.merchant_id, data.idempotency_key, fingerprint, existing.id)
+                claimed = False
                 return existing
             payment = Payment(
                 data.merchant_id,
@@ -157,6 +161,8 @@ class PaymentService:
                     payment.provider_reference = result.reference
                     payment.provider = candidate.name
                     await self.store.save(payment)
+                    await self.idempotency.complete(data.merchant_id, data.idempotency_key, fingerprint, payment.id)
+                    claimed = False
                     return payment
                 except ProviderError as exc:
                     last_error = exc
@@ -164,7 +170,16 @@ class PaymentService:
                         break
             payment.status = PaymentStatus.FAILED
             await self.store.save(payment)
+            await self.idempotency.complete(data.merchant_id, data.idempotency_key, fingerprint, payment.id)
+            claimed = False
             raise last_error or ProviderError("PROVIDER_UNAVAILABLE", "No provider completed the payment")
+        except BaseException:
+            if claimed:
+                try:
+                    await self.idempotency.abort(data.merchant_id, data.idempotency_key, fingerprint)
+                except Exception:
+                    pass
+            raise
 
     async def refund(self, payment_id, amount: int | None = None) -> Refund:
         key = str(payment_id)

@@ -8,6 +8,7 @@ from fastapi.exceptions import RequestValidationError
 
 from .config import Settings
 from .domain import Payment, PaymentStatus
+from .idempotency import IdempotencyUnavailable
 from .providers.base import ProviderError
 from .providers.mock import MockAdyenProvider, MockRazorpayProvider, MockStripeProvider
 from .service import IdempotencyConflict, PaymentInput, PaymentService, RefundError
@@ -122,6 +123,10 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
     @app.exception_handler(IdempotencyConflict)
     async def idempotency_conflict(request: Request, exc: IdempotencyConflict):
         return JSONResponse(status_code=409, content={"error": {"code": exc.code, "message": str(exc), "request_id": request.state.request_id}})
+
+    @app.exception_handler(IdempotencyUnavailable)
+    async def idempotency_unavailable(request: Request, exc: IdempotencyUnavailable):
+        return JSONResponse(status_code=503, content={"error": {"code": exc.code, "message": "Idempotency coordination is unavailable", "request_id": request.state.request_id}})
 
     @app.exception_handler(RefundError)
     async def refund_error(request: Request, exc: RefundError):
