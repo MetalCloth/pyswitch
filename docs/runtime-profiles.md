@@ -45,7 +45,20 @@ building the app. Kafka is started during the app lifespan and is stopped on
 shutdown.
 
 The SQLAlchemy repository maps the existing payment, attempts, refunds, and
-outbox model seam. Applying migrations, verifying PostgreSQL behavior, Redis
-cross-process coordination, Kafka delivery, worker lifecycle, and external
-failure recovery remain deferred until those services are run in an integration
-environment. The default local tests make no network calls.
+outbox model seam. The Compose entrypoint runs `alembic upgrade head` when
+`PYSWITCH_STORAGE_BACKEND=postgres`, using `PYSWITCH_DATABASE_URL`; the image
+includes the `db`, `redis`, and `events` extras required by the selected
+profile. Compose sets all three external backend selectors and service DNS
+URLs explicitly. The default local tests make no network calls.
+
+The opt-in external profile checks run with:
+
+```bash
+PYSWITCH_RUN_INTEGRATION=1 pytest -q tests/integration/test_external_profiles.py
+```
+
+They exercise PostgreSQL payment plus outbox persistence, Redis atomic
+idempotency and rate limiting, and Kafka publish plus outbox marking with
+bounded timeouts. Missing packages or unavailable services skip with a reason;
+the checks do not claim durability, cross-process recovery, delivery latency,
+or production performance beyond the operations they complete.
