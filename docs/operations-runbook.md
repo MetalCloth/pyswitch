@@ -21,9 +21,8 @@ Open Prometheus at `http://127.0.0.1:9090` and Grafana at `http://127.0.0.1:3000
 4. Inspect application logs for a JSON request record. Confirm the request body, synthetic token, and idempotency key are absent.
 5. Recover Stripe through the admin API and restore its simulation configuration.
 
-This scenario exercises the local mock provider only. It does not prove PostgreSQL persistence, Redis coordination, Redpanda publication, dashboard data retention, or multi-process behavior because those clients are not wired into the default app yet.
+This scenario exercises the local mock provider and default in-memory profile only. It does not prove PostgreSQL persistence, Redis coordination, Redpanda publication, dashboard data retention, or multi-process behavior because Compose starts with external profiles disabled.
 
 ## Simulated dependency outage
 
-If a future wiring harness injects an unavailable PostgreSQL, Redis, or Redpanda client, readiness and worker behavior must be checked separately. The current Compose app healthcheck only calls `/ready`, which reports simulated provider health. Treat external container health as a prerequisite signal, not evidence that the app has used the dependency.
-
+When running an explicit external profile, inject or stop an unavailable PostgreSQL, Redis, or Redpanda dependency and check readiness and worker behavior separately. The current Compose app healthcheck only calls `/ready`, which reports simulated provider health. Treat external container health as a prerequisite signal, not evidence that the app has used the dependency.

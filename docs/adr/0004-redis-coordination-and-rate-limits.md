@@ -12,5 +12,4 @@ The application defaults to in-memory coordinator and limiter implementations fo
 
 ## Consequences
 
-With a reachable shared Redis and a durable payment repository, coordination can span workers. This slice does not wire Redis into application startup, does not provide Redis deployment configuration, and does not claim live cross-process verification. PostgreSQL remains the financial source of truth; Redis loss must never invent or overwrite payment records.
-
+With a reachable shared Redis and a durable payment repository, coordination can span workers. The explicit runtime profile wires Redis clients during application composition, but this slice does not claim live cross-process verification. PostgreSQL remains the financial source of truth; Redis loss must never invent or overwrite payment records.

@@ -1,6 +1,6 @@
 # Redis coordination and rate controls
 
-PySwitch has optional async Redis implementations for idempotency and merchant token buckets. The default app still uses process-local implementations so a clean checkout runs without Redis. Install `.[redis]` and inject the Redis implementations during application wiring when a reachable Redis service is available.
+PySwitch has optional async Redis implementations for idempotency and merchant token buckets. The default app still uses process-local implementations so a clean checkout runs without Redis. Install `.[redis]` and select `PYSWITCH_COORDINATION_BACKEND=redis` when a reachable Redis service is available; direct dependency injection remains supported for tests.
 
 ## Idempotency flow
 
@@ -44,5 +44,4 @@ The following points are verified by code and tests in this repository. They are
 - `tests/test_idempotency.py::test_service_concurrent_same_key_calls_provider_once` verifies one provider call for 25 concurrent same-key service requests using the in-memory coordinator.
 - `tests/test_redis_controls.py` verifies Redis coordinator claim/completion/conflict result handling with a fake command surface and verifies dependency errors become explicit unavailable exceptions.
 - `tests/test_rate_limit.py::test_api_returns_rate_headers_and_429_without_provider_call` verifies the API returns 429 and rate headers before provider orchestration for a blocked merchant.
-- The application factory defaults to process-local coordination; Redis-backed behavior requires explicit dependency injection and has not been tested against a live Redis server in this slice.
-
+- The application factory defaults to process-local coordination; Redis-backed behavior requires the explicit runtime profile and has not been tested against a live Redis server in this slice.

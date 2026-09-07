@@ -8,7 +8,10 @@ PySwitch keeps the public contract provider-neutral. The API validates a synthet
 flowchart TB
     Client[Client with Idempotency-Key] --> Boundary[FastAPI boundary<br/>Pydantic validation + request ID]
     Boundary --> Service[PaymentService<br/>orchestration and provider-neutral rules]
-    Service --> Store[(InMemoryPaymentStore<br/>payment + attempt history)]
+    Service --> Runtime[Runtime profile<br/>explicit dependency composition]
+    Runtime --> Store[(Memory or SQLAlchemy repository<br/>payment + attempt history)]
+    Runtime --> Coordination[Memory or Redis<br/>idempotency + rate limits]
+    Runtime --> Events[Memory or Kafka<br/>outbox broker]
     Service --> Router[RoundRobinRouter<br/>healthy provider order]
     Router --> Breakers[Independent CircuitBreaker per provider]
     Breakers --> Stripe[MockStripeProvider]
@@ -21,7 +24,13 @@ flowchart TB
 
 The boundary owns HTTP concerns and maps expected domain errors to the common error envelope. `PaymentService` owns idempotency locking, provider ordering, retry policy, failover policy, and payment state. `RoundRobinRouter` does not inspect provider-specific configuration. `CircuitBreaker` instances are keyed by provider name, so an outage in one adapter does not open another adapter's circuit. The three adapters implement the same asynchronous protocol and return provider-neutral results to the service.
 
-The current store is intentionally process-local. It is a seam for the P1 build; PostgreSQL will become authoritative before the system is used outside a local simulation. The current idempotency lock prevents duplicate calls within one process. Redis and a database uniqueness constraint are required for the multi-process invariant in a later milestone.
+The default profile is intentionally process-local. `build_runtime(Settings)`
+can select the SQLAlchemy repository, Redis coordinators, and Kafka broker
+explicitly through environment variables; it never silently falls back to
+memory after an external profile is selected. The optional adapters are
+constructed without network calls, while migrations, row-lock behavior,
+cross-process coordination, and live broker delivery still require an
+integration environment.
 
 ## Payment data flow
 
@@ -142,7 +151,11 @@ sequenceDiagram
     S->>R: release refund lock
 ```
 
-The repository protocol is the seam for replacing these lock-and-save operations with PostgreSQL transactions. Redis claims, database row locks, and an outbox write in the same database transaction are deferred external-service work.
+The repository protocol is the seam for the memory and SQLAlchemy
+implementations. The SQLAlchemy adapter writes payment and outbox rows in one
+session transaction; live migration, database row-lock, and cross-process
+behavior remain integration checks. Redis claims and Kafka publication are
+explicit runtime profiles, while durable worker delivery is still deferred.
 
 ## Simulated outage timeline
 

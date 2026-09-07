@@ -17,9 +17,8 @@ Payments and rate limits continue to work in this mode, but their guarantees are
 
 The Redis classes are dependency-injected, so a test double can raise `ConnectionError` from `eval`. In this simulated failure, `RedisIdempotencyCoordinator` raises `IdempotencyUnavailable` and `RedisTokenBucketLimiter` raises `RateLimitUnavailable`. The API maps either to HTTP 503 and does not call a payment provider.
 
-The fake behavior is covered by `tests/test_redis_controls.py::test_redis_dependency_errors_fail_closed`. A live Redis outage drill and cross-process concurrency test are deferred until Redis is wired into the application factory and local Compose.
+The fake behavior is covered by `tests/test_redis_controls.py::test_redis_dependency_errors_fail_closed`. A live Redis outage drill and cross-process concurrency test are deferred until the explicit Redis profile is run against the Compose service.
 
 ## Recovery check
 
 After restoring Redis, issue a new request and inspect the coordinator and rate-limit results. A pre-existing payment must still be read from the authoritative repository; a cached Redis payment ID alone is never treated as a complete financial record.
-

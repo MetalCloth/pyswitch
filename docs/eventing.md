@@ -30,7 +30,7 @@ sequenceDiagram
     end
 ```
 
-The default `InMemoryPaymentStore` implements the repository and outbox seam under one async lock. This proves the intended atomic shape without claiming database transaction durability. The optional SQLAlchemy model includes an `outbox_events` table, but the running service is not wired to PostgreSQL yet.
+The default `InMemoryPaymentStore` implements the repository and outbox seam under one async lock. The explicit PostgreSQL runtime profile uses the SQLAlchemy repository, which writes payment and outbox rows in one session transaction. Neither path is presented as live durability evidence until migrations and a real database run are verified.
 
 ## Event contract
 
@@ -54,7 +54,7 @@ This is a local simulation, not a production incident or delivery-latency measur
 4. Set the fake broker back to available and run the dispatcher again; the event publishes and is marked sent.
 5. Deliver the same envelope twice to each consumer; the first delivery is applied and the replay is ignored.
 
-The behavior is covered by `tests/test_events.py`. A live Redpanda/Kafka outage drill, broker retry policy, and durable event replay test are deferred until the optional `events` dependency is wired into local Compose.
+The behavior is covered by `tests/test_events.py`. A live Redpanda/Kafka outage drill, broker retry policy, durable worker replay, and consumer offsets remain deferred until the optional `events` profile is run against a real broker.
 
 ## Actual-observed implementation notes
 
@@ -64,4 +64,3 @@ These are verified by the repository code and tests only:
 - `tests/test_events.py::test_outbox_keeps_events_unsent_when_broker_is_unavailable` verifies an unavailable fake broker leaves an event unsent.
 - `tests/test_events.py::test_replayed_event_is_harmless_for_idempotent_consumer` verifies UUID replay deduplication.
 - No live broker, external consumer, production incident, delivery rate, or latency benchmark is represented.
-
