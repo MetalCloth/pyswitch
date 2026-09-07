@@ -11,12 +11,12 @@ from fastapi.exceptions import RequestValidationError
 from .config import Settings
 from .domain import Payment, PaymentStatus
 from .idempotency import IdempotencyUnavailable
-from .rate_limit import InMemoryTokenBucketLimiter, RateLimitUnavailable, RateLimiter
+from .rate_limit import RateLimitUnavailable, RateLimiter
 from .observability import Metrics, log_request
 from .providers.base import ProviderError
 from .providers.mock import MockAdyenProvider, MockRazorpayProvider, MockStripeProvider
 from .service import IdempotencyConflict, PaymentInput, PaymentService, RefundError
-from .store import InMemoryPaymentStore
+from .runtime import Runtime, build_runtime
 
 
 class AdminUnauthorized(Exception):
@@ -88,24 +88,42 @@ def _payment_response(payment: Payment, request_id: str) -> PaymentResponse:
     return PaymentResponse(id=payment.id, merchant_id=payment.merchant_id, amount=payment.amount, currency=payment.currency, status=payment.status, created_at=payment.created_at.isoformat(), request_id=request_id)
 
 
-def create_app(settings: Settings | None = None, service: PaymentService | None = None, rate_limiter: RateLimiter | None = None, metrics: Metrics | None = None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None,
+    service: PaymentService | None = None,
+    rate_limiter: RateLimiter | None = None,
+    metrics: Metrics | None = None,
+    runtime: Runtime | None = None,
+) -> FastAPI:
     settings = settings or Settings.from_env()
     metrics = metrics or Metrics()
+    runtime = runtime or build_runtime(settings)
     if service is None:
-        service = PaymentService([MockStripeProvider(), MockAdyenProvider(), MockRazorpayProvider()], InMemoryPaymentStore(), metrics=metrics)
+        service = PaymentService(
+            [MockStripeProvider(), MockAdyenProvider(), MockRazorpayProvider()],
+            runtime.store,
+            idempotency=runtime.idempotency,
+            outbox=runtime.outbox,
+            metrics=metrics,
+        )
     else:
         service.metrics = metrics
-    rate_limiter = rate_limiter or InMemoryTokenBucketLimiter(capacity=settings.rate_limit_capacity, refill_per_second=settings.rate_limit_refill_per_second)
+    rate_limiter = rate_limiter or runtime.rate_limiter
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        yield
+        await app.state.runtime.start()
+        try:
+            yield
+        finally:
+            await app.state.runtime.close()
 
     app = FastAPI(title="PySwitch", version="0.1.0", lifespan=lifespan)
     app.state.service = service
     app.state.settings = settings
     app.state.rate_limiter = rate_limiter
     app.state.metrics = metrics
+    app.state.runtime = runtime
 
     @app.middleware("http")
     async def request_id(request: Request, call_next):
