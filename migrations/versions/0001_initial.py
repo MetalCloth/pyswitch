@@ -39,7 +39,9 @@ def upgrade() -> None:
     op.create_table(
         "outbox_events",
         sa.Column("id", postgresql.UUID(as_uuid=True), primary_key=True), sa.Column("event_type", sa.String(100), nullable=False),
-        sa.Column("aggregate_id", postgresql.UUID(as_uuid=True)), sa.Column("payload", postgresql.JSONB, nullable=False),
+        sa.Column("merchant_id", sa.String(100), nullable=False), sa.Column("aggregate_id", postgresql.UUID(as_uuid=True)),
+        sa.Column("provider", sa.String(50)), sa.Column("version", sa.Integer, nullable=False, server_default="1"),
+        sa.Column("payload", postgresql.JSONB, nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False), sa.Column("published_at", sa.DateTime(timezone=True)),
     )
 

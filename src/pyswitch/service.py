@@ -87,12 +87,12 @@ class PaymentService:
         async with self._circuit_locks[provider.name]:
             self.circuits[provider.name].record_failure()
 
-    def _event(self, payment: Payment, event_type: EventType) -> EventEnvelope:
+    def _event(self, payment: Payment, event_type: EventType, status: PaymentStatus | None = None) -> EventEnvelope:
         return EventEnvelope(
             event_type,
             payment.merchant_id,
             payment.id,
-            {"payment_id": str(payment.id), "status": payment.status.value},
+            {"payment_id": str(payment.id), "status": (status or payment.status).value},
             provider=payment.provider,
         )
 
@@ -186,8 +186,8 @@ class PaymentService:
                     await self._save(
                         payment,
                         [
-                            self._event(payment, EventType.PAYMENT_CREATED),
-                            self._event(payment, EventType.PAYMENT_PROCESSING),
+                            self._event(payment, EventType.PAYMENT_CREATED, PaymentStatus.PROCESSING),
+                            self._event(payment, EventType.PAYMENT_PROCESSING, PaymentStatus.PROCESSING),
                             self._event(payment, EventType.PAYMENT_SUCCEEDED),
                         ],
                     )
@@ -202,8 +202,8 @@ class PaymentService:
             await self._save(
                 payment,
                 [
-                    self._event(payment, EventType.PAYMENT_CREATED),
-                    self._event(payment, EventType.PAYMENT_PROCESSING),
+                    self._event(payment, EventType.PAYMENT_CREATED, PaymentStatus.PROCESSING),
+                    self._event(payment, EventType.PAYMENT_PROCESSING, PaymentStatus.PROCESSING),
                     self._event(payment, EventType.PAYMENT_FAILED),
                 ],
             )

@@ -20,6 +20,7 @@ async def test_payment_and_refund_changes_are_saved_with_outbox_events():
         EventType.PAYMENT_SUCCEEDED,
         EventType.PAYMENT_REFUNDED,
     ]
+    assert [event.payload["status"] for event in events] == ["PROCESSING", "PROCESSING", "SUCCEEDED", "SUCCEEDED"]
     assert (await store.get(payment.id)).refunded_amount == 25
 
 
@@ -32,4 +33,3 @@ async def test_idempotency_replay_does_not_duplicate_outbox_events():
     second = await service.create(data)
     assert first.id == second.id
     assert len(await store.unsent()) == 3
-
