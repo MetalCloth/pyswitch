@@ -25,12 +25,39 @@ async def test_payment_create_fetch_and_round_robin(app):
         assert [item["name"] for item in providers.json()] == ["mockstripe", "mockadyen", "mockrazorpay"]
 
 
+async def test_payment_list_supports_merchant_status_and_time_filters(app):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        body = {"merchant_id": "filter-merchant", "amount": 100, "currency": "INR", "payment_method": {"type": "card", "token": "test_card"}}
+        created = await client.post("/api/v1/payments", headers={"Idempotency-Key": "filter-1"}, json=body)
+        assert created.status_code == 201
+        payment = created.json()
+        assert len((await client.get("/api/v1/payments", params={"merchant_id": "filter-merchant", "status": "SUCCEEDED"})).json()) == 1
+        assert len((await client.get("/api/v1/payments", params={"merchant_id": "other-merchant"})).json()) == 0
+        assert len((await client.get("/api/v1/payments", params={"created_after": payment["created_at"]})).json()) == 1
+        assert len((await client.get("/api/v1/payments", params={"created_before": "2000-01-01T00:00:00Z"})).json()) == 0
+
+
 async def test_invalid_request_is_rejected(app):
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         response = await client.post("/api/v1/payments", headers={"Idempotency-Key": "bad"}, json={"merchant_id": "m", "amount": 0, "currency": "INR", "payment_method": {"type": "card", "token": "real_card"}})
         assert response.status_code == 422
         assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+
+
+async def test_readiness_reports_provider_and_runtime_dependencies(app):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.get("/ready")
+    assert response.status_code == 200
+    body = response.json()
+    assert body["status"] == "ready"
+    assert body["dependencies"] == {
+        "storage": {"backend": "memory", "status": "ready"},
+        "coordination": {"backend": "memory", "status": "ready"},
+        "events": {"backend": "memory", "status": "ready"},
+    }
 
 
 async def test_admin_can_force_failure_and_recover_provider(app):

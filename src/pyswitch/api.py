@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from datetime import datetime
 import time
 from uuid import UUID, uuid4
 
@@ -208,7 +209,11 @@ def create_app(
     @app.get("/ready")
     async def ready(request: Request):
         providers = request.app.state.service.providers
-        return {"status": "ready", "providers": {p.name: await p.health_check() for p in providers}}
+        provider_status = {p.name: await p.health_check() for p in providers}
+        dependencies = await request.app.state.runtime.readiness()
+        ready = all(provider_status.values()) and all(item["status"] == "ready" for item in dependencies.values())
+        body = {"status": "ready" if ready else "unavailable", "providers": provider_status, "dependencies": dependencies}
+        return JSONResponse(status_code=200 if ready else 503, content=body)
 
     @app.get("/metrics")
     async def metrics_endpoint(request: Request):
@@ -245,8 +250,20 @@ def create_app(
         return _payment_response(payment, request.state.request_id)
 
     @app.get("/api/v1/payments", response_model=list[PaymentResponse])
-    async def list_payments(request: Request, merchant_id: str | None = Query(default=None)):
-        return [_payment_response(p, request.state.request_id) for p in await request.app.state.service.store.list(merchant_id)]
+    async def list_payments(
+        request: Request,
+        merchant_id: str | None = Query(default=None),
+        status: PaymentStatus | None = Query(default=None),
+        created_after: datetime | None = Query(default=None),
+        created_before: datetime | None = Query(default=None),
+    ):
+        payments = await request.app.state.service.store.list(
+            merchant_id,
+            status.value if status else None,
+            created_after,
+            created_before,
+        )
+        return [_payment_response(p, request.state.request_id) for p in payments]
 
     @app.post("/api/v1/payments/{payment_id}/refund", response_model=RefundResponse)
     async def refund_payment(payment_id: UUID, payload: RefundRequest, request: Request):
@@ -309,7 +326,7 @@ def create_app(
         if provider is None:
             return JSONResponse(status_code=404, content={"error": {"code": "VALIDATION_ERROR", "message": "Unknown provider", "request_id": request.state.request_id}})
         provider.configure(forced_failure=False)
-        request.app.state.service.circuits[provider.name].record_success()
+        await request.app.state.service._record_success(provider)
         return {"name": provider.name, "healthy": True}
 
     return app

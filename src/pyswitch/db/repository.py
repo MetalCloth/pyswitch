@@ -92,11 +92,23 @@ class SqlAlchemyPaymentRepository(PaymentRepository):
             row = await self._find(session, payment_id)
             return self._to_domain(row) if row else None
 
-    async def list(self, merchant_id: str | None = None) -> list[Payment]:
+    async def list(
+        self,
+        merchant_id: str | None = None,
+        status: str | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+    ) -> list[Payment]:
         async with self.session_factory() as session:
             query = select(PaymentRow).options(*self._payment_options()).order_by(PaymentRow.created_at)
             if merchant_id is not None:
                 query = query.where(PaymentRow.merchant_id == merchant_id)
+            if status is not None:
+                query = query.where(PaymentRow.status == status)
+            if created_after is not None:
+                query = query.where(PaymentRow.created_at >= created_after)
+            if created_before is not None:
+                query = query.where(PaymentRow.created_at <= created_before)
             rows = (await session.execute(query)).scalars().all()
             return [self._to_domain(row) for row in rows]
 

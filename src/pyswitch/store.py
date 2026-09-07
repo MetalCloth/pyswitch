@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 from uuid import UUID
 
 from .domain import Payment
@@ -51,7 +52,20 @@ class InMemoryPaymentStore:
         async with self._lock:
             return self._payments.get(payment_id)
 
-    async def list(self, merchant_id: str | None = None) -> list[Payment]:
+    async def list(
+        self,
+        merchant_id: str | None = None,
+        status: str | None = None,
+        created_after: datetime | None = None,
+        created_before: datetime | None = None,
+    ) -> list[Payment]:
         async with self._lock:
             values = list(self._payments.values())
-        return [p for p in values if merchant_id is None or p.merchant_id == merchant_id]
+        return [
+            p
+            for p in values
+            if (merchant_id is None or p.merchant_id == merchant_id)
+            and (status is None or p.status.value == status)
+            and (created_after is None or p.created_at >= created_after)
+            and (created_before is None or p.created_at <= created_before)
+        ]

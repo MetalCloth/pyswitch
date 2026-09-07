@@ -25,4 +25,4 @@ This scenario exercises the local mock provider and default in-memory profile on
 
 ## Simulated dependency outage
 
-When running an explicit external profile, inject or stop an unavailable PostgreSQL, Redis, or Redpanda dependency and check readiness and worker behavior separately. The current Compose app healthcheck only calls `/ready`, which reports simulated provider health. Treat external container health as a prerequisite signal, not evidence that the app has used the dependency.
+When running an explicit external profile, inject or stop an unavailable PostgreSQL, Redis, or Redpanda dependency and check readiness and worker behavior separately. `/ready` reports each selected runtime dependency and returns 503 when a dependency or provider is unavailable. Treat external container health as a prerequisite signal, not evidence that the app has used the dependency.
