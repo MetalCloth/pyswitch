@@ -1,5 +1,6 @@
 """Opt-in live dependency smoke checks; never run external services by default."""
 
+import asyncio
 import os
 
 import pytest
@@ -22,8 +23,9 @@ async def test_postgres_is_reachable():
     except Exception as exc:
         pytest.skip(f"PostgreSQL driver unavailable: {type(exc).__name__}")
     try:
-        async with engine.connect() as connection:
-            await connection.execute(text("SELECT 1"))
+        async with asyncio.timeout(3):
+            async with engine.connect() as connection:
+                await connection.execute(text("SELECT 1"))
     except Exception as exc:
         pytest.skip(f"PostgreSQL unavailable: {type(exc).__name__}")
     finally:
@@ -33,7 +35,11 @@ async def test_postgres_is_reachable():
 @pytest.mark.asyncio
 async def test_redis_is_reachable():
     redis = pytest.importorskip("redis.asyncio")
-    client = redis.from_url(os.getenv("PYSWITCH_REDIS_URL", "redis://localhost:6379/0"))
+    client = redis.from_url(
+        os.getenv("PYSWITCH_REDIS_URL", "redis://localhost:6379/0"),
+        socket_connect_timeout=3,
+        socket_timeout=3,
+    )
     try:
         assert await client.ping()
     except Exception as exc:
@@ -50,7 +56,7 @@ async def test_kafka_is_reachable():
     )
     started = False
     try:
-        await producer.start()
+        await asyncio.wait_for(producer.start(), timeout=3)
         started = True
     except Exception as exc:
         pytest.skip(f"Kafka/Redpanda unavailable: {type(exc).__name__}")
