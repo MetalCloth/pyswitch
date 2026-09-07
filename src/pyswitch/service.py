@@ -11,7 +11,7 @@ from .outbox import OutboxRepository
 from .observability import Metrics
 from .providers.base import PaymentProvider, ProviderError
 from .reliability import CircuitBreaker, RetryPolicy, is_retryable, run_with_retry
-from .routing import RoundRobinRouter
+from .routing import ProviderRouter, RoutingStrategy
 from .repositories import PaymentRepository
 
 
@@ -59,10 +59,11 @@ class PaymentService:
         idempotency: IdempotencyCoordinator | None = None,
         outbox: OutboxRepository | None = None,
         metrics: Metrics | None = None,
+        routing_strategy: RoutingStrategy = "round_robin",
     ) -> None:
         self.providers = providers
         self.store = store
-        self.router = RoundRobinRouter()
+        self.router = ProviderRouter(routing_strategy)
         self.retry_policy = retry_policy or RetryPolicy()
         self.idempotency = idempotency or MemoryIdempotencyCoordinator()
         self.outbox = outbox if outbox is not None else (store if hasattr(store, "append") else None)
@@ -126,17 +127,20 @@ class PaymentService:
             if not await self._allow_provider(provider):
                 raise ProviderError("CIRCUIT_OPEN", "Provider circuit is open")
             started = time.perf_counter()
+            self.router.start_request(provider)
             try:
                 result = await provider.create_payment(
                     payment_id=str(payment.id), amount=data.amount, currency=data.currency, token=data.token
                 )
             except ProviderError as error:
+                latency_ms = (time.perf_counter() - started) * 1000
+                self.router.finish_request(provider, success=False, latency_ms=latency_ms)
                 await self._record_failure(provider)
                 if self.metrics is not None:
                     error_code = error.code if error.code in {"PROVIDER_TIMEOUT", "PROVIDER_UNAVAILABLE", "PAYMENT_DECLINED", "HTTP_502", "HTTP_503"} else "other"
                     self.metrics.provider_requests_total.labels(provider=provider.name, result="error").inc()
                     self.metrics.provider_failures_total.labels(provider=provider.name, error_code=error_code).inc()
-                    self.metrics.provider_latency_seconds.labels(provider=provider.name).observe(time.perf_counter() - started)
+                    self.metrics.provider_latency_seconds.labels(provider=provider.name).observe(latency_ms / 1000)
                     if is_retryable(error):
                         self.metrics.retries_total.labels(provider=provider.name).inc()
                 attempts.append(
@@ -144,17 +148,26 @@ class PaymentService:
                         provider.name,
                         attempt_number,
                         "RETRY" if is_retryable(error) else "FAILED",
-                        (time.perf_counter() - started) * 1000,
+                        latency_ms,
                         error_code=error.code,
                     )
                 )
                 raise
+            except Exception:
+                self.router.finish_request(
+                    provider,
+                    success=False,
+                    latency_ms=(time.perf_counter() - started) * 1000,
+                )
+                raise
             await self._record_success(provider)
+            latency_ms = (time.perf_counter() - started) * 1000
+            self.router.finish_request(provider, success=True, latency_ms=latency_ms)
             if self.metrics is not None:
                 self.metrics.provider_requests_total.labels(provider=provider.name, result="success").inc()
-                self.metrics.provider_latency_seconds.labels(provider=provider.name).observe(time.perf_counter() - started)
+                self.metrics.provider_latency_seconds.labels(provider=provider.name).observe(latency_ms / 1000)
             attempts.append(
-                PaymentAttempt(provider.name, attempt_number, "SUCCEEDED", (time.perf_counter() - started) * 1000)
+                PaymentAttempt(provider.name, attempt_number, "SUCCEEDED", latency_ms)
             )
             return result
 
