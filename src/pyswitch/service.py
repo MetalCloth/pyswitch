@@ -6,7 +6,7 @@ from .domain import Payment, PaymentAttempt, PaymentStatus
 from .providers.base import PaymentProvider, ProviderError
 from .reliability import CircuitBreaker, RetryPolicy, is_retryable, run_with_retry
 from .routing import RoundRobinRouter
-from .store import InMemoryPaymentStore
+from .repositories import PaymentRepository
 
 
 @dataclass(frozen=True, slots=True)
@@ -23,7 +23,7 @@ class PaymentService:
     def __init__(
         self,
         providers: list[PaymentProvider],
-        store: InMemoryPaymentStore,
+        store: PaymentRepository,
         *,
         retry_policy: RetryPolicy | None = None,
         circuit_failure_threshold: int = 3,

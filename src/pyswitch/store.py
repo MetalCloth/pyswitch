@@ -30,4 +30,3 @@ class InMemoryPaymentStore:
         async with self._lock:
             values = list(self._payments.values())
         return [p for p in values if merchant_id is None or p.merchant_id == merchant_id]
-
