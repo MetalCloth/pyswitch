@@ -19,7 +19,7 @@ curl -X POST http://127.0.0.1:8000/api/v1/payments \
   -d '{"merchant_id":"merchant_123","amount":500000,"currency":"INR","payment_method":{"type":"card","token":"test_card"}}'
 ```
 
-`POST /api/v1/payments`, `GET /api/v1/payments/{id}`, `GET /api/v1/payments`, `GET /api/v1/providers`, `GET /api/v1/providers/{provider}`, `/health`, and `/ready` are included in this first vertical slice. Provider selection is round robin among healthy providers. Provider choice stays in internal attempt history and is not returned by the payment API.
+`POST /api/v1/payments`, `GET /api/v1/payments/{id}`, `GET /api/v1/payments`, `POST /api/v1/payments/{id}/refund`, `GET /api/v1/providers`, `GET /api/v1/providers/{provider}`, `/health`, and `/ready` are included in this first vertical slice. Provider selection is round robin among healthy providers. Provider choice stays in internal attempt history and is not returned by the payment API.
 
 The reliability slice retries transient provider-unavailable and 502/503 errors with bounded exponential backoff and jitter. Each provider has an independent `CLOSED -> OPEN -> HALF_OPEN` circuit. Failover is allowed for unavailable providers after retries; an ambiguous timeout stays on the original provider and is never blindly charged on a second provider.
 
@@ -56,7 +56,7 @@ curl -X PUT http://127.0.0.1:8000/api/v1/admin/providers/mockstripe/config \
   -d '{"min_latency_ms":25,"max_latency_ms":50}'
 ```
 
-The current slice uses an in-memory store so it is easy to run in a clean checkout. Fingerprint conflict detection and full/partial refunds are implemented within one process. Typed repository and optional SQLAlchemy/Alembic scaffolding are present behind `pip install -e '.[db]'`, but PostgreSQL is not wired into the running app. Redis-backed idempotency, durable outbox delivery, events, metrics, and Compose remain deferred milestones. See [`docs/adr/0001-reliability-policy.md`](docs/adr/0001-reliability-policy.md) and [`docs/runbook.md`](docs/runbook.md) for the simulated failure procedure.
+The current slice uses an in-memory store so it is easy to run in a clean checkout. Fingerprint conflict detection returns `DUPLICATE_REQUEST` when a merchant reuses a key with different payment data. Full and partial refunds are serialized per payment within one process. Typed repository and optional SQLAlchemy/Alembic scaffolding are present behind `pip install -e '.[db]'`, but PostgreSQL is not wired into the running app. Redis-backed idempotency, durable outbox delivery, events, metrics, and Compose remain deferred milestones. See [`docs/adr/0001-reliability-policy.md`](docs/adr/0001-reliability-policy.md) and [`docs/runbook.md`](docs/runbook.md) for the simulated failure procedure.
 
 Further design references:
 
