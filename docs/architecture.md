@@ -31,8 +31,16 @@ latency, and current in-flight count. Weighted round robin uses
 and composite maximizes:
 
 ```text
-success_rate / (1 + average_latency_ms / 1000) / (1 + inflight)
+success_rate^success_weight
+  / (1 + average_latency_ms / 1000)^latency_weight
+  / (1 + inflight)^load_weight
+  / (1 + recent_failure_rate)^recent_failure_weight
 ```
+
+The defaults are `(success_weight, latency_weight, load_weight,
+recent_failure_weight) = (1, 1, 1, 0)`, which preserve the original score.
+Weights are bounded to 0 through 5 and can be selected through environment
+settings or the authenticated routing admin endpoint.
 
 Empty candidate sets still raise `No healthy payment provider is available`.
 These observations are process-local and come from the mock providers in the
