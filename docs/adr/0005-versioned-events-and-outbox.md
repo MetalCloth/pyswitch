@@ -12,4 +12,4 @@ Use an `OutboxDispatcher` that publishes unsent rows to an `EventBroker` and mar
 
 ## Consequences and deferred work
 
-The event contract and failure behavior are testable without network services. The default store is process-local and does not provide durable outbox delivery; PostgreSQL transaction wiring, Redpanda deployment, worker lifecycle, consumer offsets, retry/dead-letter policy, and live broker failure testing remain deferred.
+The event contract and failure behavior are testable without network services. The default store is process-local and does not provide durable outbox delivery. PostgreSQL transaction wiring, Redpanda deployment, retry/dead-letter policy, and live broker failure testing remain deferred in the default path. The opt-in `scripts/kafka_consumer_evidence.py` probe records one local consumer-group offset commit/restart result; long-lived consumer operations and external side effects remain deferred.

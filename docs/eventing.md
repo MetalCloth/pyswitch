@@ -42,7 +42,7 @@ The default `InMemoryPaymentStore` implements the repository and outbox seam und
 | `payment.failed` | Non-retryable/exhausted result is saved | payment ID |
 | `payment.refunded` | Full or partial refund is saved | payment ID |
 
-`AuditConsumer`, `AnalyticsConsumer`, and `NotificationConsumer` implement the same UUID-deduplicating consumer contract. Their current effects are in-memory recordings for tests; durable consumer offsets and external side effects are deferred.
+`AuditConsumer`, `AnalyticsConsumer`, and `NotificationConsumer` implement the same UUID-deduplicating consumer contract. Their current effects are in-memory recordings. The opt-in `scripts/kafka_consumer_evidence.py` probe exercises an explicit Kafka group with manual offset commits and a restart; its measured result is in `benchmark/results/kafka-consumer-offsets.json`. External side effects and a long-lived consumer deployment remain deferred.
 
 ## Simulated broker outage runbook
 
@@ -54,7 +54,7 @@ This is a local simulation, not a production incident or delivery-latency measur
 4. Set the fake broker back to available and run the dispatcher again; the event publishes and is marked sent.
 5. Deliver the same envelope twice to each consumer; the first delivery is applied and the replay is ignored.
 
-The behavior is covered by `tests/test_events.py` and `tests/test_outbox_worker.py`. The default app lifespan starts the bounded-retry worker for the selected outbox and stops it before the broker/resource shutdown. A live Redpanda/Kafka outage drill, durable worker replay, and consumer offsets remain deferred until the optional `events` profile is run against a real broker.
+The behavior is covered by `tests/test_events.py` and `tests/test_outbox_worker.py`. The default app lifespan starts the bounded-retry worker for the selected outbox and stops it before the broker/resource shutdown. The offset probe covers one local Redpanda publish/consume/commit/restart path; a live broker outage drill, durable worker replay under outage, external side effects, and production consumer operations remain deferred.
 
 ## Actual-observed implementation notes
 
@@ -63,4 +63,7 @@ These are verified by the repository code and tests only:
 - `tests/test_service_events.py` verifies one payment plus one refund produces four events and that a payment idempotency replay does not append a second event set.
 - `tests/test_events.py::test_outbox_keeps_events_unsent_when_broker_is_unavailable` verifies an unavailable fake broker leaves an event unsent.
 - `tests/test_events.py::test_replayed_event_is_harmless_for_idempotent_consumer` verifies UUID replay deduplication.
-- No live broker, external consumer, production incident, delivery rate, or latency benchmark is represented.
+- `scripts/kafka_consumer_evidence.py` recorded four consumed records, three
+  UUID-deduplicated effects, and zero records after restarting the same group;
+  this is local broker evidence, not an external-consumer or production
+  delivery claim.

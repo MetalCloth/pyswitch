@@ -24,7 +24,7 @@ request totals, successes, failures, timeouts, average and p95 latency, current
 in-flight count, and last success/failure timestamps. These values are local
 process observations; the repository has no shared health history yet.
 
-The provisioned dashboard covers payment status rate, provider latency p95, circuit state, and rate-limit rejections. Panels are configuration only; this repository contains no collected dashboard or load-test result.
+The provisioned dashboard covers payment status rate, provider latency p95, circuit state, and rate-limit rejections. Panels are configuration only. Bounded HTTP load, PostgreSQL query-plan, and Kafka consumer-offset measurements are stored as raw JSON under `benchmark/results`; they are separate from dashboard collection and are not production performance claims.
 
 ## Local stack boundary
 
