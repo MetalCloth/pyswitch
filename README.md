@@ -31,9 +31,17 @@ Runtime dependencies are selected explicitly with `PYSWITCH_STORAGE_BACKEND=memo
 
 Provider calls are unlimited by default for compatibility. Set `PYSWITCH_PROVIDER_CONCURRENCY_LIMIT` to a positive value for a process-wide limit on every provider, or set `max_concurrency` through `PUT /api/v1/admin/providers/{provider}/config` for one provider (`0` disables that provider's limit). The app lifespan starts a bounded-retry outbox worker and stops it before runtime resources close. The worker proves local retry/recovery behavior; it does not claim durable Kafka delivery or cross-process worker coordination.
 
+Optional load and live dependency entrypoints are documented in [`docs/load-testing.md`](docs/load-testing.md). `pip install -e '.[load]' && locust -f locustfile.py --host http://127.0.0.1:8000` runs the synthetic scenario; `PYSWITCH_RUN_INTEGRATION=1 pytest -q tests/integration` probes PostgreSQL, Redis, and Kafka/Redpanda and skips unavailable services. No benchmark or reachability result is implied until a run records it.
+
 `POST /api/v1/payments`, `GET /api/v1/payments/{id}`, `GET /api/v1/payments` with merchant/status/time filters, `POST /api/v1/payments/{id}/refund`, `GET /api/v1/providers`, `GET /api/v1/providers/{provider}`, `/health`, and `/ready` are included in this first vertical slice. Readiness reports provider and selected runtime dependency status and returns 503 when one is unavailable. Provider selection defaults to round robin among healthy providers and can use `round_robin`, `weighted_round_robin`, `lowest_latency`, `highest_success_rate`, or `composite`; configure it with `PYSWITCH_ROUTING_STRATEGY` or `PUT /api/v1/admin/routing-strategy`. Provider choice stays in internal attempt history and is not returned by the payment API. Routing measurements are bounded, process-local mock observations in this build.
 
 The reliability slice retries transient provider-unavailable and 502/503 errors with bounded exponential backoff and jitter. Each provider has an independent `CLOSED -> OPEN -> HALF_OPEN` circuit. Failover is allowed for unavailable providers after retries; an ambiguous timeout stays on the original provider and is never blindly charged on a second provider.
+
+Provider status and `/metrics` expose cumulative request outcomes, timeout
+counts, bounded-window average/p95 latency, in-flight calls, and last success or
+failure timestamps. These are process-local observations; they are not shared
+health history or production performance measurements. See
+[`docs/adr/0009-operational-health-evidence.md`](docs/adr/0009-operational-health-evidence.md).
 
 ```mermaid
 flowchart LR
@@ -90,5 +98,6 @@ Further design references:
 - [`docs/adr/0007-explicit-runtime-profiles.md`](docs/adr/0007-explicit-runtime-profiles.md) — explicit runtime composition decision.
 - [`docs/adr/0008-adaptive-routing-strategies.md`](docs/adr/0008-adaptive-routing-strategies.md) — routing strategies, scoring, and local measurement limits.
 - [`docs/adr/0009-operational-health-evidence.md`](docs/adr/0009-operational-health-evidence.md) — circuit transition evidence, readiness, and list filters.
+- [`docs/load-testing.md`](docs/load-testing.md) — optional Locust scenario and opt-in live dependency smoke checks.
 
 Known environment limits: the default app still uses in-memory payment storage, Redis seams, and broker; Compose provisions PostgreSQL, Redis, and Redpanda but does not wire their clients into the running service. Grafana and Prometheus files are configuration, not collected performance evidence. No load-test, delivery, latency, or recovery numbers are claimed.

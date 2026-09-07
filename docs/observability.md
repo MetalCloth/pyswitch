@@ -19,6 +19,11 @@ Request logs contain event, request ID, method, path, status, latency, and safe 
 
 `pyswitch_provider_circuit_state{provider,state}` is a one-hot gauge for each circuit state. `pyswitch_provider_circuit_transitions_total{provider,from_state,to_state}` records state changes, and `pyswitch_provider_inflight{provider}` reports current provider calls. Provider names and state/error/status values are bounded enums from the running configuration.
 
+Provider status endpoints also expose bounded recent and cumulative evidence:
+request totals, successes, failures, timeouts, average and p95 latency, current
+in-flight count, and last success/failure timestamps. These values are local
+process observations; the repository has no shared health history yet.
+
 The provisioned dashboard covers payment status rate, provider latency p95, circuit state, and rate-limit rejections. Panels are configuration only; this repository contains no collected dashboard or load-test result.
 
 ## Local stack boundary

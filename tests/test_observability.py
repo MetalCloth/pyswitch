@@ -7,6 +7,7 @@ from httpx import ASGITransport, AsyncClient
 from pyswitch.api import create_app
 from pyswitch.events import EventType
 from pyswitch.observability import Metrics
+from pyswitch.providers.base import ProviderError
 from pyswitch.providers.mock import MockAdyenProvider, MockStripeProvider
 from pyswitch.reliability import RetryPolicy
 from pyswitch.service import PaymentInput, PaymentService
@@ -67,3 +68,42 @@ async def test_circuit_transition_is_logged_metered_and_outboxed(caplog):
     rendered = metrics.render().decode()
     assert 'pyswitch_provider_circuit_transitions_total{from_state="CLOSED",provider="mockstripe",to_state="OPEN"} 1.0' in rendered
     assert 'pyswitch_provider_inflight{provider="mockstripe"} 0.0' in rendered
+
+
+@pytest.mark.asyncio
+async def test_timeout_updates_provider_health_evidence():
+    metrics = Metrics()
+    timeout = MockStripeProvider()
+    timeout.configure(success_rate=0.0, timeout_probability=1.0)
+    service = PaymentService(
+        [timeout],
+        InMemoryPaymentStore(),
+        retry_policy=RetryPolicy(max_attempts=1, initial_delay_seconds=0, max_delay_seconds=0, jitter_ratio=0),
+        metrics=metrics,
+    )
+    with pytest.raises(ProviderError) as raised:
+        await service.create(PaymentInput("merchant", 100, "INR", "card", "test_card", "timeout-evidence"))
+    assert raised.value.code == "PROVIDER_TIMEOUT"
+    stats = service.router.stats["mockstripe"]
+    assert (stats.total_requests, stats.failures, stats.timeouts) == (1, 1, 1)
+    assert stats.last_failure_at is not None
+    rendered = metrics.render().decode()
+    assert 'pyswitch_provider_timeouts_total{provider="mockstripe"} 1.0' in rendered
+    assert 'pyswitch_provider_last_failure_timestamp{provider="mockstripe"} ' in rendered
+
+
+@pytest.mark.asyncio
+async def test_unexpected_provider_exception_counts_as_bounded_failure():
+    class BrokenProvider(MockStripeProvider):
+        async def create_payment(self, **kwargs):
+            raise RuntimeError("simulated adapter bug")
+
+    metrics = Metrics()
+    service = PaymentService([BrokenProvider()], InMemoryPaymentStore(), metrics=metrics)
+    with pytest.raises(RuntimeError, match="simulated adapter bug"):
+        await service.create(PaymentInput("merchant", 100, "INR", "card", "test_card", "unexpected"))
+    stats = service.router.stats["mockstripe"]
+    assert (stats.total_requests, stats.failures) == (1, 1)
+    rendered = metrics.render().decode()
+    assert 'pyswitch_provider_requests_total{provider="mockstripe",result="error"} 1.0' in rendered
+    assert 'pyswitch_provider_failures_total{error_code="other",provider="mockstripe"} 1.0' in rendered
