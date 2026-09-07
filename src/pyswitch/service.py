@@ -8,7 +8,7 @@ from .domain import Payment, PaymentAttempt, PaymentStatus, Refund
 from .events import EventEnvelope, EventType
 from .idempotency import IdempotencyCoordinator, IdempotencyStatus, IdempotencyUnavailable, MemoryIdempotencyCoordinator
 from .outbox import OutboxRepository
-from .observability import Metrics
+from .observability import Metrics, log_circuit_transition
 from .providers.base import PaymentProvider, ProviderError
 from .reliability import CircuitBreaker, RetryPolicy, is_retryable, run_with_retry
 from .routing import ProviderRouter, RoutingStrategy
@@ -78,20 +78,62 @@ class PaymentService:
         self._circuit_locks = {provider.name: asyncio.Lock() for provider in providers}
         self._refund_locks: dict[str, asyncio.Lock] = {}
         self._lock = asyncio.Lock()
+        for provider in providers:
+            self._set_circuit_metric(provider.name)
 
     async def _allow_provider(self, provider: PaymentProvider) -> bool:
         async with self._circuit_locks[provider.name]:
-            return self.circuits[provider.name].allow_request()
+            circuit = self.circuits[provider.name]
+            previous = circuit.state
+            allowed = circuit.allow_request()
+            current = circuit.state
+            self._set_circuit_metric(provider.name)
+        if previous is not current:
+            await self._record_circuit_transition(provider.name, previous, current)
+        return allowed
 
     async def _record_success(self, provider: PaymentProvider) -> None:
         async with self._circuit_locks[provider.name]:
-            self.circuits[provider.name].record_success()
+            circuit = self.circuits[provider.name]
+            previous = circuit.state
+            circuit.record_success()
             self._set_circuit_metric(provider.name)
+            current = circuit.state
+        if previous is not current:
+            await self._record_circuit_transition(provider.name, previous, current)
 
     async def _record_failure(self, provider: PaymentProvider) -> None:
         async with self._circuit_locks[provider.name]:
-            self.circuits[provider.name].record_failure()
+            circuit = self.circuits[provider.name]
+            previous = circuit.state
+            circuit.record_failure()
             self._set_circuit_metric(provider.name)
+            current = circuit.state
+        if previous is not current:
+            await self._record_circuit_transition(provider.name, previous, current)
+
+    async def _record_circuit_transition(self, provider_name: str, previous, current) -> None:
+        log_circuit_transition(provider=provider_name, from_state=previous.value, to_state=current.value)
+        if self.metrics is not None:
+            self.metrics.provider_circuit_transitions_total.labels(
+                provider=provider_name,
+                from_state=previous.value,
+                to_state=current.value,
+            ).inc()
+        if self.outbox is not None and current.value in {"OPEN", "CLOSED"}:
+            await self.outbox.append(
+                [
+                    EventEnvelope(
+                        EventType.PROVIDER_CIRCUIT_OPENED
+                        if current.value == "OPEN"
+                        else EventType.PROVIDER_CIRCUIT_CLOSED,
+                        "system",
+                        None,
+                        {"provider": provider_name, "from_state": previous.value, "to_state": current.value},
+                        provider=provider_name,
+                    )
+                ]
+            )
 
     def _set_circuit_metric(self, provider_name: str) -> None:
         if self.metrics is None:
@@ -99,6 +141,10 @@ class PaymentService:
         state = self.circuits[provider_name].state.value
         for circuit_state in ("CLOSED", "OPEN", "HALF_OPEN"):
             self.metrics.provider_circuit_state.labels(provider=provider_name, state=circuit_state).set(circuit_state == state)
+
+    def _set_inflight_metric(self, provider_name: str) -> None:
+        if self.metrics is not None:
+            self.metrics.provider_inflight.labels(provider=provider_name).set(self.router.stats[provider_name].inflight)
 
     def _event(self, payment: Payment, event_type: EventType, status: PaymentStatus | None = None) -> EventEnvelope:
         return EventEnvelope(
@@ -128,6 +174,7 @@ class PaymentService:
                 raise ProviderError("CIRCUIT_OPEN", "Provider circuit is open")
             started = time.perf_counter()
             self.router.start_request(provider)
+            self._set_inflight_metric(provider.name)
             try:
                 result = await provider.create_payment(
                     payment_id=str(payment.id), amount=data.amount, currency=data.currency, token=data.token
@@ -135,6 +182,7 @@ class PaymentService:
             except ProviderError as error:
                 latency_ms = (time.perf_counter() - started) * 1000
                 self.router.finish_request(provider, success=False, latency_ms=latency_ms)
+                self._set_inflight_metric(provider.name)
                 await self._record_failure(provider)
                 if self.metrics is not None:
                     error_code = error.code if error.code in {"PROVIDER_TIMEOUT", "PROVIDER_UNAVAILABLE", "PAYMENT_DECLINED", "HTTP_502", "HTTP_503"} else "other"
@@ -159,10 +207,12 @@ class PaymentService:
                     success=False,
                     latency_ms=(time.perf_counter() - started) * 1000,
                 )
+                self._set_inflight_metric(provider.name)
                 raise
             await self._record_success(provider)
             latency_ms = (time.perf_counter() - started) * 1000
             self.router.finish_request(provider, success=True, latency_ms=latency_ms)
+            self._set_inflight_metric(provider.name)
             if self.metrics is not None:
                 self.metrics.provider_requests_total.labels(provider=provider.name, result="success").inc()
                 self.metrics.provider_latency_seconds.labels(provider=provider.name).observe(latency_ms / 1000)
