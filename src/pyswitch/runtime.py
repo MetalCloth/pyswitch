@@ -18,6 +18,7 @@ class RuntimeConfigurationError(RuntimeError):
 
 @dataclass(slots=True)
 class Runtime:
+    settings: Settings
     store: PaymentRepository
     idempotency: IdempotencyCoordinator
     rate_limiter: RateLimiter
@@ -25,6 +26,8 @@ class Runtime:
     broker: EventBroker
     _resources: list[Any] = field(default_factory=list, repr=False)
     _started: bool = field(default=False, repr=False)
+    _storage_resource: Any | None = field(default=None, repr=False)
+    _coordination_resource: Any | None = field(default=None, repr=False)
 
     async def start(self) -> None:
         if isinstance(self.broker, KafkaBroker):
@@ -47,17 +50,47 @@ class Runtime:
                     await dispose()
         self._started = False
 
+    async def readiness(self) -> dict[str, dict[str, str]]:
+        dependencies: dict[str, dict[str, str]] = {}
+        if self.settings.storage_backend == "memory":
+            dependencies["storage"] = {"backend": "memory", "status": "ready"}
+        else:
+            try:
+                async with self._storage_resource.connect() as connection:
+                    from sqlalchemy import text
 
-def _build_store(settings: Settings, resources: list[Any]) -> PaymentRepository:
+                    await connection.execute(text("SELECT 1"))
+                dependencies["storage"] = {"backend": "postgres", "status": "ready"}
+            except Exception as exc:
+                dependencies["storage"] = {"backend": "postgres", "status": "unavailable", "error": type(exc).__name__}
+        if self.settings.coordination_backend == "memory":
+            dependencies["coordination"] = {"backend": "memory", "status": "ready"}
+        else:
+            try:
+                await self._coordination_resource.ping()
+                dependencies["coordination"] = {"backend": "redis", "status": "ready"}
+            except Exception as exc:
+                dependencies["coordination"] = {"backend": "redis", "status": "unavailable", "error": type(exc).__name__}
+        if self.settings.event_backend == "memory":
+            dependencies["events"] = {"backend": "memory", "status": "ready"}
+        else:
+            dependencies["events"] = {
+                "backend": "kafka",
+                "status": "ready" if self._started else "starting",
+            }
+        return dependencies
+
+
+def _build_store(settings: Settings) -> tuple[PaymentRepository, Any | None]:
     if settings.storage_backend == "memory":
-        return InMemoryPaymentStore()
+        return InMemoryPaymentStore(), None
     try:
         from .db.repository import SqlAlchemyPaymentRepository
         from .db.session import session_factory
 
         maker = session_factory(settings.database_url)
-        resources.append(maker.kw["bind"])
-        return SqlAlchemyPaymentRepository(maker)
+        engine = maker.kw["bind"]
+        return SqlAlchemyPaymentRepository(maker), engine
     except ImportError as exc:
         raise RuntimeConfigurationError(
             "PostgreSQL storage requires the optional db dependencies; install pyswitch[db]"
@@ -68,12 +101,12 @@ def _build_store(settings: Settings, resources: list[Any]) -> PaymentRepository:
         ) from exc
 
 
-def _build_coordination(settings: Settings, resources: list[Any]) -> tuple[IdempotencyCoordinator, RateLimiter]:
+def _build_coordination(settings: Settings) -> tuple[IdempotencyCoordinator, RateLimiter, Any | None]:
     if settings.coordination_backend == "memory":
         return MemoryIdempotencyCoordinator(), InMemoryTokenBucketLimiter(
             capacity=settings.rate_limit_capacity,
             refill_per_second=settings.rate_limit_refill_per_second,
-        )
+        ), None
     try:
         from redis import asyncio as redis
 
@@ -84,7 +117,6 @@ def _build_coordination(settings: Settings, resources: list[Any]) -> tuple[Idemp
         ) from exc
     except Exception as exc:
         raise RuntimeConfigurationError("Redis coordination could not be configured from PYSWITCH_REDIS_URL") from exc
-    resources.append(client)
     return (
         RedisIdempotencyCoordinator(client),
         RedisTokenBucketLimiter(
@@ -92,6 +124,7 @@ def _build_coordination(settings: Settings, resources: list[Any]) -> tuple[Idemp
             capacity=settings.rate_limit_capacity,
             refill_per_second=settings.rate_limit_refill_per_second,
         ),
+        client,
     )
 
 
@@ -110,10 +143,10 @@ def _build_events(settings: Settings) -> EventBroker:
 
 def build_runtime(settings: Settings) -> Runtime:
     """Build all app dependencies from explicit settings; no network calls occur here."""
-    resources: list[Any] = []
-    store = _build_store(settings, resources)
-    idempotency, rate_limiter = _build_coordination(settings, resources)
+    store, storage_resource = _build_store(settings)
+    idempotency, rate_limiter, coordination_resource = _build_coordination(settings)
     broker = _build_events(settings)
     if not hasattr(store, "append"):
         raise RuntimeConfigurationError("Selected storage profile does not provide an outbox repository")
-    return Runtime(store, idempotency, rate_limiter, store, broker, resources)
+    resources = [resource for resource in (storage_resource, coordination_resource) if resource is not None]
+    return Runtime(settings, store, idempotency, rate_limiter, store, broker, resources, False, storage_resource, coordination_resource)
