@@ -87,9 +87,10 @@ async def test_provider_config_updates_and_validates_latency_range(app):
         headers = {"X-Admin-Token": "local-dev-only"}
         invalid = await client.put("/api/v1/admin/providers/mockadyen/config", headers=headers, json={"min_latency_ms": 100, "max_latency_ms": 10})
         assert invalid.status_code == 422
-        updated = await client.put("/api/v1/admin/providers/mockadyen/config", headers=headers, json={"min_latency_ms": 10, "max_latency_ms": 20})
+        updated = await client.put("/api/v1/admin/providers/mockadyen/config", headers=headers, json={"min_latency_ms": 10, "max_latency_ms": 20, "max_concurrency": 2})
         assert updated.status_code == 200
         assert updated.json()["config"]["max_latency_ms"] == 20
+        assert updated.json()["config"]["max_concurrency"] == 2
 
 
 async def test_idempotency_conflict_is_rejected(app):

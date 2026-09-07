@@ -60,7 +60,10 @@ class PaymentService:
         outbox: OutboxRepository | None = None,
         metrics: Metrics | None = None,
         routing_strategy: RoutingStrategy = "round_robin",
+        provider_concurrency_limit: int = 0,
     ) -> None:
+        if provider_concurrency_limit < 0:
+            raise ValueError("provider_concurrency_limit must be zero or positive")
         self.providers = providers
         self.store = store
         self.router = ProviderRouter(routing_strategy)
@@ -68,6 +71,8 @@ class PaymentService:
         self.idempotency = idempotency or MemoryIdempotencyCoordinator()
         self.outbox = outbox if outbox is not None else (store if hasattr(store, "append") else None)
         self.metrics = metrics
+        self.provider_concurrency_limit = provider_concurrency_limit
+        self._provider_semaphores: dict[str, asyncio.Semaphore | None] = {}
         self.circuits = {
             provider.name: CircuitBreaker(
                 failure_threshold=circuit_failure_threshold,
@@ -80,6 +85,12 @@ class PaymentService:
         self._lock = asyncio.Lock()
         for provider in providers:
             self._set_circuit_metric(provider.name)
+            self.set_provider_concurrency(provider.name, provider.config.max_concurrency or provider_concurrency_limit)
+
+    def set_provider_concurrency(self, provider_name: str, limit: int) -> None:
+        if limit < 0:
+            raise ValueError("provider concurrency limit must be zero or positive")
+        self._provider_semaphores[provider_name] = asyncio.Semaphore(limit) if limit else None
 
     async def _allow_provider(self, provider: PaymentProvider) -> bool:
         async with self._circuit_locks[provider.name]:
@@ -176,9 +187,16 @@ class PaymentService:
             self.router.start_request(provider)
             self._set_inflight_metric(provider.name)
             try:
-                result = await provider.create_payment(
-                    payment_id=str(payment.id), amount=data.amount, currency=data.currency, token=data.token
-                )
+                semaphore = self._provider_semaphores[provider.name]
+                if semaphore is None:
+                    result = await provider.create_payment(
+                        payment_id=str(payment.id), amount=data.amount, currency=data.currency, token=data.token
+                    )
+                else:
+                    async with semaphore:
+                        result = await provider.create_payment(
+                            payment_id=str(payment.id), amount=data.amount, currency=data.currency, token=data.token
+                        )
             except ProviderError as error:
                 latency_ms = (time.perf_counter() - started) * 1000
                 self.router.finish_request(provider, success=False, latency_ms=latency_ms)

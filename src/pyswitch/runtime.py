@@ -6,7 +6,7 @@ from typing import Any
 from .broker import KafkaBroker
 from .config import Settings
 from .idempotency import IdempotencyCoordinator, MemoryIdempotencyCoordinator, RedisIdempotencyCoordinator
-from .outbox import EventBroker, InMemoryBroker, OutboxRepository
+from .outbox import EventBroker, InMemoryBroker, OutboxDispatcher, OutboxRepository
 from .rate_limit import InMemoryTokenBucketLimiter, RateLimiter, RedisTokenBucketLimiter
 from .repositories import PaymentRepository
 from .store import InMemoryPaymentStore
@@ -24,6 +24,7 @@ class Runtime:
     rate_limiter: RateLimiter
     outbox: OutboxRepository
     broker: EventBroker
+    dispatcher: OutboxDispatcher
     _resources: list[Any] = field(default_factory=list, repr=False)
     _started: bool = field(default=False, repr=False)
     _storage_resource: Any | None = field(default=None, repr=False)
@@ -35,9 +36,11 @@ class Runtime:
                 await self.broker.start()
             except Exception as exc:
                 raise RuntimeConfigurationError("Kafka runtime startup failed; check PYSWITCH_KAFKA_BOOTSTRAP_SERVERS") from exc
+        await self.dispatcher.start()
         self._started = True
 
     async def close(self) -> None:
+        await self.dispatcher.stop()
         if isinstance(self.broker, KafkaBroker) and self._started:
             await self.broker.stop()
         for resource in self._resources:
@@ -149,4 +152,5 @@ def build_runtime(settings: Settings) -> Runtime:
     if not hasattr(store, "append"):
         raise RuntimeConfigurationError("Selected storage profile does not provide an outbox repository")
     resources = [resource for resource in (storage_resource, coordination_resource) if resource is not None]
-    return Runtime(settings, store, idempotency, rate_limiter, store, broker, resources, False, storage_resource, coordination_resource)
+    dispatcher = OutboxDispatcher(store, broker)
+    return Runtime(settings, store, idempotency, rate_limiter, store, broker, dispatcher, resources, False, storage_resource, coordination_resource)
