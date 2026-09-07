@@ -60,6 +60,7 @@ class ProviderConfigRequest(BaseModel):
     timeout_probability: float | None = Field(default=None, ge=0, le=1)
     server_error_probability: float | None = Field(default=None, ge=0, le=1)
     decline_probability: float | None = Field(default=None, ge=0, le=1)
+    max_concurrency: int | None = Field(default=None, ge=0, le=1000)
 
 
 class RoutingConfigRequest(BaseModel):
@@ -94,6 +95,7 @@ def _provider_config(provider) -> dict[str, object]:
         "server_error_probability": config.server_error_probability,
         "decline_probability": config.decline_probability,
         "forced_failure": config.forced_failure,
+        "max_concurrency": config.max_concurrency,
     }
 
 
@@ -128,6 +130,7 @@ def create_app(
             outbox=runtime.outbox,
             metrics=metrics,
             routing_strategy=settings.routing_strategy,
+            provider_concurrency_limit=settings.provider_concurrency_limit,
         )
     else:
         service.metrics = metrics
@@ -310,6 +313,8 @@ def create_app(
         if max_latency_ms < min_latency_ms:
             return JSONResponse(status_code=422, content={"error": {"code": "VALIDATION_ERROR", "message": "max_latency_ms must be at least min_latency_ms", "request_id": request.state.request_id}})
         provider.configure(**changes)
+        if "max_concurrency" in changes:
+            request.app.state.service.set_provider_concurrency(provider.name, provider.config.max_concurrency)
         return {"name": provider.name, "config": _provider_config(provider)}
 
     @app.post("/api/v1/admin/providers/{provider_name}/fail")

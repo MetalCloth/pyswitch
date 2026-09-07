@@ -19,6 +19,7 @@ class ProviderConfig:
     server_error_probability: float = 0.0
     decline_probability: float = 0.0
     forced_failure: bool = False
+    max_concurrency: int = 0
 
 
 @dataclass(frozen=True, slots=True)
@@ -35,4 +36,3 @@ class PaymentProvider(Protocol):
     async def refund_payment(self, *, payment_id: str, amount: int) -> ProviderPaymentResult: ...
     async def get_payment_status(self, *, provider_reference: str) -> str: ...
     async def health_check(self) -> bool: ...
-

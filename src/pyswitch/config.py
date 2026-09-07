@@ -37,6 +37,7 @@ class Settings:
     admin_token: str = "local-dev-only"
     rate_limit_capacity: int = 60
     rate_limit_refill_per_second: float = 1.0
+    provider_concurrency_limit: int = 0
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -66,6 +67,9 @@ class Settings:
             raise ValueError("PYSWITCH_REDIS_URL is required when PYSWITCH_COORDINATION_BACKEND=redis")
         if event_backend == "kafka" and not kafka_bootstrap_servers:
             raise ValueError("PYSWITCH_KAFKA_BOOTSTRAP_SERVERS is required when PYSWITCH_EVENT_BACKEND=kafka")
+        provider_concurrency_limit = int(os.getenv("PYSWITCH_PROVIDER_CONCURRENCY_LIMIT", "0"))
+        if provider_concurrency_limit < 0:
+            raise ValueError("PYSWITCH_PROVIDER_CONCURRENCY_LIMIT must be zero or positive")
         return cls(
             storage_backend=cast(StorageBackend, storage_backend),
             coordination_backend=cast(CoordinationBackend, coordination_backend),
@@ -87,4 +91,5 @@ class Settings:
             admin_token=os.getenv("PYSWITCH_ADMIN_TOKEN", "local-dev-only"),
             rate_limit_capacity=int(os.getenv("PYSWITCH_RATE_LIMIT_CAPACITY", "60")),
             rate_limit_refill_per_second=float(os.getenv("PYSWITCH_RATE_LIMIT_REFILL_PER_SECOND", "1")),
+            provider_concurrency_limit=provider_concurrency_limit,
         )
