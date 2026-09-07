@@ -15,6 +15,7 @@ from .rate_limit import RateLimitUnavailable, RateLimiter
 from .observability import Metrics, log_request
 from .providers.base import ProviderError
 from .providers.mock import MockAdyenProvider, MockRazorpayProvider, MockStripeProvider
+from .routing import ROUTING_STRATEGIES
 from .service import IdempotencyConflict, PaymentInput, PaymentService, RefundError
 from .runtime import Runtime, build_runtime
 
@@ -60,6 +61,17 @@ class ProviderConfigRequest(BaseModel):
     decline_probability: float | None = Field(default=None, ge=0, le=1)
 
 
+class RoutingConfigRequest(BaseModel):
+    strategy: str
+
+    @field_validator("strategy")
+    @classmethod
+    def valid_strategy(cls, value: str) -> str:
+        if value not in ROUTING_STRATEGIES:
+            raise ValueError(f"strategy must be one of: {', '.join(ROUTING_STRATEGIES)}")
+        return value
+
+
 class RefundRequest(BaseModel):
     amount: int | None = Field(default=None, gt=0)
 
@@ -84,6 +96,15 @@ def _provider_config(provider) -> dict[str, object]:
     }
 
 
+def _provider_stats(stats) -> dict[str, float | int]:
+    return {
+        "recent_requests": len(stats.recent) if stats else 0,
+        "success_rate": stats.success_rate if stats else 1.0,
+        "average_latency_ms": stats.average_latency_ms if stats else 0.0,
+        "inflight": stats.inflight if stats else 0,
+    }
+
+
 def _payment_response(payment: Payment, request_id: str) -> PaymentResponse:
     return PaymentResponse(id=payment.id, merchant_id=payment.merchant_id, amount=payment.amount, currency=payment.currency, status=payment.status, created_at=payment.created_at.isoformat(), request_id=request_id)
 
@@ -105,6 +126,7 @@ def create_app(
             idempotency=runtime.idempotency,
             outbox=runtime.outbox,
             metrics=metrics,
+            routing_strategy=settings.routing_strategy,
         )
     else:
         service.metrics = metrics
@@ -234,7 +256,17 @@ def create_app(
     @app.get("/api/v1/providers")
     async def providers(request: Request):
         service = request.app.state.service
-        return [{"name": p.name, "healthy": await p.health_check(), "config": _provider_config(p), "circuit_state": service.circuits[p.name].state, "consecutive_failures": service.circuits[p.name].consecutive_failures} for p in service.providers]
+        return [
+            {
+                "name": p.name,
+                "healthy": await p.health_check(),
+                "config": _provider_config(p),
+                "circuit_state": service.circuits[p.name].state,
+                "consecutive_failures": service.circuits[p.name].consecutive_failures,
+                "stats": _provider_stats(service.router.stats.get(p.name)),
+            }
+            for p in service.providers
+        ]
 
     @app.get("/api/v1/providers/{provider_name}")
     async def provider_detail(provider_name: str, request: Request):
@@ -242,7 +274,13 @@ def create_app(
         if provider is None:
             return JSONResponse(status_code=404, content={"error": {"code": "VALIDATION_ERROR", "message": "Unknown provider", "request_id": request.state.request_id}})
         circuit = request.app.state.service.circuits[provider.name]
-        return {"name": provider.name, "healthy": await provider.health_check(), "config": _provider_config(provider), "circuit_state": circuit.state, "consecutive_failures": circuit.consecutive_failures}
+        return {"name": provider.name, "healthy": await provider.health_check(), "config": _provider_config(provider), "circuit_state": circuit.state, "consecutive_failures": circuit.consecutive_failures, "stats": _provider_stats(request.app.state.service.router.stats.get(provider.name))}
+
+    @app.put("/api/v1/admin/routing-strategy")
+    @app.put("/api/v1/admin/routing")
+    async def configure_routing(payload: RoutingConfigRequest, request: Request, _: None = Depends(require_admin)):
+        request.app.state.service.router.set_strategy(payload.strategy)
+        return {"strategy": request.app.state.service.router.strategy}
 
     @app.put("/api/v1/admin/providers/{provider_name}/config")
     async def configure_provider(provider_name: str, payload: ProviderConfigRequest, request: Request, _: None = Depends(require_admin)):

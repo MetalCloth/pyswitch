@@ -12,7 +12,7 @@ flowchart TB
     Runtime --> Store[(Memory or SQLAlchemy repository<br/>payment + attempt history)]
     Runtime --> Coordination[Memory or Redis<br/>idempotency + rate limits]
     Runtime --> Events[Memory or Kafka<br/>outbox broker]
-    Service --> Router[RoundRobinRouter<br/>healthy provider order]
+    Service --> Router[ProviderRouter<br/>configurable strategy + local stats]
     Router --> Breakers[Independent CircuitBreaker per provider]
     Breakers --> Stripe[MockStripeProvider]
     Breakers --> Adyen[MockAdyenProvider]
@@ -22,7 +22,21 @@ flowchart TB
     Admin --> Razorpay
 ```
 
-The boundary owns HTTP concerns and maps expected domain errors to the common error envelope. `PaymentService` owns idempotency locking, provider ordering, retry policy, failover policy, and payment state. `RoundRobinRouter` does not inspect provider-specific configuration. `CircuitBreaker` instances are keyed by provider name, so an outage in one adapter does not open another adapter's circuit. The three adapters implement the same asynchronous protocol and return provider-neutral results to the service.
+The boundary owns HTTP concerns and maps expected domain errors to the common error envelope. `PaymentService` owns idempotency locking, provider ordering, retry policy, failover policy, and payment state. `ProviderRouter` uses only provider names, health-filtered candidates, and bounded request observations; it does not inspect provider-specific behavior. `CircuitBreaker` instances are keyed by provider name, so an outage in one adapter does not open another adapter's circuit. The three adapters implement the same asynchronous protocol and return provider-neutral results to the service.
+
+Routing records a bounded recent window per provider: request success, request
+latency, and current in-flight count. Weighted round robin uses
+`max(0.05, recent_success_rate)` as its weight. Lowest latency minimizes
+`average_latency_ms`, highest success rate maximizes the recent success rate,
+and composite maximizes:
+
+```text
+success_rate / (1 + average_latency_ms / 1000) / (1 + inflight)
+```
+
+Empty candidate sets still raise `No healthy payment provider is available`.
+These observations are process-local and come from the mock providers in the
+default build; they are not production telemetry or a load-balancing result.
 
 The default profile is intentionally process-local. `build_runtime(Settings)`
 can select the SQLAlchemy repository, Redis coordinators, and Kafka broker

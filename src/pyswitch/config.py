@@ -2,6 +2,8 @@ from dataclasses import dataclass
 import os
 from typing import Literal, cast
 
+from .routing import ROUTING_STRATEGIES, RoutingStrategy
+
 
 StorageBackend = Literal["memory", "postgres"]
 CoordinationBackend = Literal["memory", "redis"]
@@ -29,7 +31,7 @@ class Settings:
     redis_url: str = DEFAULT_REDIS_URL
     kafka_bootstrap_servers: str = DEFAULT_KAFKA_BOOTSTRAP_SERVERS
     kafka_topic: str = DEFAULT_KAFKA_TOPIC
-    routing_strategy: str = "round_robin"
+    routing_strategy: RoutingStrategy = "round_robin"
     supported_currencies: frozenset[str] = frozenset({"INR", "USD", "EUR"})
     request_timeout_seconds: float = 5.0
     admin_token: str = "local-dev-only"
@@ -72,7 +74,14 @@ class Settings:
             redis_url=redis_url,
             kafka_bootstrap_servers=kafka_bootstrap_servers,
             kafka_topic=kafka_topic,
-            routing_strategy=os.getenv("PYSWITCH_ROUTING_STRATEGY", "round_robin"),
+            routing_strategy=cast(
+                RoutingStrategy,
+                _backend(
+                    "PYSWITCH_ROUTING_STRATEGY",
+                    os.getenv("PYSWITCH_ROUTING_STRATEGY", "round_robin"),
+                    ROUTING_STRATEGIES,
+                ),
+            ),
             supported_currencies=frozenset(c.strip().upper() for c in currencies.split(",") if c.strip()),
             request_timeout_seconds=float(os.getenv("PYSWITCH_REQUEST_TIMEOUT_SECONDS", "5")),
             admin_token=os.getenv("PYSWITCH_ADMIN_TOKEN", "local-dev-only"),
