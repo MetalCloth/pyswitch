@@ -1,8 +1,8 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import os
 from typing import Literal, cast
 
-from .routing import ROUTING_STRATEGIES, RoutingStrategy
+from .routing import MAX_COMPOSITE_WEIGHT, CompositeWeights, ROUTING_STRATEGIES, RoutingStrategy
 
 
 StorageBackend = Literal["memory", "postgres"]
@@ -32,6 +32,7 @@ class Settings:
     kafka_bootstrap_servers: str = DEFAULT_KAFKA_BOOTSTRAP_SERVERS
     kafka_topic: str = DEFAULT_KAFKA_TOPIC
     routing_strategy: RoutingStrategy = "round_robin"
+    composite_weights: CompositeWeights = field(default_factory=CompositeWeights)
     supported_currencies: frozenset[str] = frozenset({"INR", "USD", "EUR"})
     request_timeout_seconds: float = 5.0
     admin_token: str = "local-dev-only"
@@ -70,6 +71,15 @@ class Settings:
         provider_concurrency_limit = int(os.getenv("PYSWITCH_PROVIDER_CONCURRENCY_LIMIT", "0"))
         if provider_concurrency_limit < 0:
             raise ValueError("PYSWITCH_PROVIDER_CONCURRENCY_LIMIT must be zero or positive")
+
+        def composite_weight(name: str, default: float) -> float:
+            value = float(os.getenv(f"PYSWITCH_ROUTING_COMPOSITE_{name.upper()}_WEIGHT", str(default)))
+            if not 0 <= value <= MAX_COMPOSITE_WEIGHT:
+                raise ValueError(
+                    f"PYSWITCH_ROUTING_COMPOSITE_{name.upper()}_WEIGHT must be between 0 and {MAX_COMPOSITE_WEIGHT}"
+                )
+            return value
+
         return cls(
             storage_backend=cast(StorageBackend, storage_backend),
             coordination_backend=cast(CoordinationBackend, coordination_backend),
@@ -85,6 +95,12 @@ class Settings:
                     os.getenv("PYSWITCH_ROUTING_STRATEGY", "round_robin"),
                     ROUTING_STRATEGIES,
                 ),
+            ),
+            composite_weights=CompositeWeights(
+                success=composite_weight("success", 1.0),
+                latency=composite_weight("latency", 1.0),
+                load=composite_weight("load", 1.0),
+                recent_failure=composite_weight("recent_failure", 0.0),
             ),
             supported_currencies=frozenset(c.strip().upper() for c in currencies.split(",") if c.strip()),
             request_timeout_seconds=float(os.getenv("PYSWITCH_REQUEST_TIMEOUT_SECONDS", "5")),

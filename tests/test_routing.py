@@ -4,7 +4,7 @@ from httpx import ASGITransport, AsyncClient
 from pyswitch.api import create_app
 from pyswitch.config import Settings
 from pyswitch.providers.mock import MockProvider
-from pyswitch.routing import ProviderRouter, ProviderStats
+from pyswitch.routing import CompositeWeights, ProviderRouter, ProviderStats
 from pyswitch.service import PaymentInput, PaymentService
 from pyswitch.store import InMemoryPaymentStore
 
@@ -64,6 +64,18 @@ async def test_composite_balances_success_latency_and_inflight():
 
 
 @pytest.mark.asyncio
+async def test_composite_weights_can_emphasize_recent_failures():
+    items = providers()[:2]
+    router = ProviderRouter(
+        "composite",
+        composite_weights=CompositeWeights(success=0, latency=0, load=0, recent_failure=5),
+    )
+    router.finish_request(items[0], success=True, latency_ms=10)
+    router.finish_request(items[1], success=False, latency_ms=10)
+    assert await choose(router, items) == ["a"]
+
+
+@pytest.mark.asyncio
 async def test_empty_and_all_unhealthy_provider_sets_fail_cleanly():
     with pytest.raises(LookupError, match="No healthy"):
         await ProviderRouter().choose([])
@@ -79,6 +91,24 @@ def test_routing_strategy_is_validated_from_environment(monkeypatch):
     monkeypatch.setenv("PYSWITCH_ROUTING_STRATEGY", "random")
     with pytest.raises(ValueError, match="PYSWITCH_ROUTING_STRATEGY.*composite"):
         Settings.from_env()
+
+
+def test_composite_weights_are_bounded_in_settings(monkeypatch):
+    monkeypatch.setenv("PYSWITCH_ROUTING_COMPOSITE_SUCCESS_WEIGHT", "2.5")
+    monkeypatch.setenv("PYSWITCH_ROUTING_COMPOSITE_RECENT_FAILURE_WEIGHT", "5")
+    settings = Settings.from_env()
+    assert settings.composite_weights.success == 2.5
+    assert settings.composite_weights.recent_failure == 5
+
+    monkeypatch.setenv("PYSWITCH_ROUTING_COMPOSITE_LOAD_WEIGHT", "5.1")
+    with pytest.raises(ValueError, match="PYSWITCH_ROUTING_COMPOSITE_LOAD_WEIGHT"):
+        Settings.from_env()
+
+
+def test_settings_composite_weights_are_wired_into_service_router():
+    weights = CompositeWeights(success=2, latency=3, load=1, recent_failure=4)
+    app = create_app(Settings(composite_weights=weights))
+    assert app.state.service.router.composite_weights == weights
 
 
 def test_provider_stats_keep_bounded_health_evidence_and_p95():
@@ -105,3 +135,29 @@ async def test_admin_can_change_routing_strategy_using_goal_path():
         )
     assert response.status_code == 200
     assert response.json() == {"strategy": "lowest_latency"}
+
+
+@pytest.mark.asyncio
+async def test_admin_can_configure_bounded_composite_weights():
+    app = create_app()
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.put(
+            "/api/v1/admin/routing-strategy",
+            headers={"X-Admin-Token": "local-dev-only"},
+            json={
+                "strategy": "composite",
+                "composite_latency_weight": 2.5,
+                "composite_recent_failure_weight": 4,
+            },
+        )
+        invalid = await client.put(
+            "/api/v1/admin/routing-strategy",
+            headers={"X-Admin-Token": "local-dev-only"},
+            json={"strategy": "composite", "composite_load_weight": 5.1},
+        )
+    assert response.status_code == 200
+    assert response.json() == {
+        "strategy": "composite",
+        "composite_weights": {"success": 1.0, "latency": 2.5, "load": 1.0, "recent_failure": 4.0},
+    }
+    assert invalid.status_code == 422
