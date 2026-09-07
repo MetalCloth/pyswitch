@@ -23,6 +23,11 @@ async def test_payment_create_fetch_and_round_robin(app):
         assert fetched.json()["status"] == "SUCCEEDED"
         providers = await client.get("/api/v1/providers")
         assert [item["name"] for item in providers.json()] == ["mockstripe", "mockadyen", "mockrazorpay"]
+        stats = providers.json()[0]["stats"]
+        assert stats["total_requests"] == stats["successes"] == 1
+        assert stats["failures"] == stats["timeouts"] == 0
+        assert stats["p95_latency_ms"] >= 0
+        assert stats["last_success_at"] is not None
 
 
 async def test_payment_list_supports_merchant_status_and_time_filters(app):
@@ -91,6 +96,30 @@ async def test_provider_config_updates_and_validates_latency_range(app):
         assert updated.status_code == 200
         assert updated.json()["config"]["max_latency_ms"] == 20
         assert updated.json()["config"]["max_concurrency"] == 2
+
+
+async def test_provider_stats_expose_timeout_evidence_after_api_failure(app):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        headers = {"X-Admin-Token": "local-dev-only"}
+        configured = await client.put(
+            "/api/v1/admin/providers/mockstripe/config",
+            headers=headers,
+            json={"timeout_probability": 1.0},
+        )
+        assert configured.status_code == 200
+        body = {
+            "merchant_id": "timeout-merchant",
+            "amount": 100,
+            "currency": "INR",
+            "payment_method": {"type": "card", "token": "test_card"},
+        }
+        payment = await client.post("/api/v1/payments", headers={"Idempotency-Key": "timeout-api"}, json=body)
+        assert payment.status_code == 503
+        stats = (await client.get("/api/v1/providers/mockstripe")).json()["stats"]
+        assert stats["total_requests"] == stats["failures"] == stats["timeouts"] == 3
+        assert stats["last_success_at"] is None
+        assert stats["last_failure_at"] is not None
 
 
 async def test_idempotency_conflict_is_rejected(app):

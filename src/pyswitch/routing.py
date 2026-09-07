@@ -1,6 +1,8 @@
 from collections import deque
 from collections.abc import Sequence
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from math import ceil
 from typing import Literal
 
 from .providers.base import PaymentProvider
@@ -29,12 +31,27 @@ class ProviderStats:
     window_size: int = 20
     recent: deque[tuple[bool, float]] = field(default_factory=deque)
     inflight: int = 0
+    total_requests: int = 0
+    successes: int = 0
+    failures: int = 0
+    timeouts: int = 0
+    last_success_at: datetime | None = None
+    last_failure_at: datetime | None = None
 
     def start(self) -> None:
         self.inflight += 1
 
-    def finish(self, *, success: bool, latency_ms: float) -> None:
+    def finish(self, *, success: bool, latency_ms: float, error_code: str | None = None) -> None:
         self.inflight = max(0, self.inflight - 1)
+        self.total_requests += 1
+        if success:
+            self.successes += 1
+            self.last_success_at = datetime.now(timezone.utc)
+        else:
+            self.failures += 1
+            self.last_failure_at = datetime.now(timezone.utc)
+            if error_code == "PROVIDER_TIMEOUT":
+                self.timeouts += 1
         self.recent.append((success, max(0.0, latency_ms)))
         while len(self.recent) > self.window_size:
             self.recent.popleft()
@@ -46,6 +63,13 @@ class ProviderStats:
     @property
     def average_latency_ms(self) -> float:
         return sum(latency for _, latency in self.recent) / len(self.recent) if self.recent else 0.0
+
+    @property
+    def p95_latency_ms(self) -> float:
+        if not self.recent:
+            return 0.0
+        latencies = sorted(latency for _, latency in self.recent)
+        return latencies[max(0, ceil(len(latencies) * 0.95) - 1)]
 
 
 class ProviderRouter:
@@ -73,8 +97,15 @@ class ProviderRouter:
     def start_request(self, provider: PaymentProvider) -> None:
         self._stats_for(provider).start()
 
-    def finish_request(self, provider: PaymentProvider, *, success: bool, latency_ms: float) -> None:
-        self._stats_for(provider).finish(success=success, latency_ms=latency_ms)
+    def finish_request(
+        self,
+        provider: PaymentProvider,
+        *,
+        success: bool,
+        latency_ms: float,
+        error_code: str | None = None,
+    ) -> None:
+        self._stats_for(provider).finish(success=success, latency_ms=latency_ms, error_code=error_code)
 
     async def choose(self, providers: Sequence[PaymentProvider]) -> PaymentProvider:
         if not providers:

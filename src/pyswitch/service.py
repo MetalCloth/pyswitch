@@ -155,7 +155,25 @@ class PaymentService:
 
     def _set_inflight_metric(self, provider_name: str) -> None:
         if self.metrics is not None:
-            self.metrics.provider_inflight.labels(provider=provider_name).set(self.router.stats[provider_name].inflight)
+            stats = self.router.stats[provider_name]
+            self.metrics.provider_inflight.labels(provider=provider_name).set(stats.inflight)
+            self.metrics.provider_p95_latency_seconds.labels(provider=provider_name).set(stats.p95_latency_ms / 1000)
+            self.metrics.provider_last_success_timestamp.labels(provider=provider_name).set(
+                stats.last_success_at.timestamp() if stats.last_success_at else 0
+            )
+            self.metrics.provider_last_failure_timestamp.labels(provider=provider_name).set(
+                stats.last_failure_at.timestamp() if stats.last_failure_at else 0
+            )
+
+    def _record_provider_failure_metrics(self, provider_name: str, error_code: str, latency_ms: float) -> None:
+        if self.metrics is None:
+            return
+        bounded_code = error_code if error_code in {"PROVIDER_TIMEOUT", "PROVIDER_UNAVAILABLE", "PAYMENT_DECLINED", "HTTP_502", "HTTP_503"} else "other"
+        self.metrics.provider_requests_total.labels(provider=provider_name, result="error").inc()
+        self.metrics.provider_failures_total.labels(provider=provider_name, error_code=bounded_code).inc()
+        self.metrics.provider_latency_seconds.labels(provider=provider_name).observe(latency_ms / 1000)
+        if error_code == "PROVIDER_TIMEOUT":
+            self.metrics.provider_timeouts_total.labels(provider=provider_name).inc()
 
     def _event(self, payment: Payment, event_type: EventType, status: PaymentStatus | None = None) -> EventEnvelope:
         return EventEnvelope(
@@ -199,16 +217,12 @@ class PaymentService:
                         )
             except ProviderError as error:
                 latency_ms = (time.perf_counter() - started) * 1000
-                self.router.finish_request(provider, success=False, latency_ms=latency_ms)
+                self.router.finish_request(provider, success=False, latency_ms=latency_ms, error_code=error.code)
                 self._set_inflight_metric(provider.name)
                 await self._record_failure(provider)
-                if self.metrics is not None:
-                    error_code = error.code if error.code in {"PROVIDER_TIMEOUT", "PROVIDER_UNAVAILABLE", "PAYMENT_DECLINED", "HTTP_502", "HTTP_503"} else "other"
-                    self.metrics.provider_requests_total.labels(provider=provider.name, result="error").inc()
-                    self.metrics.provider_failures_total.labels(provider=provider.name, error_code=error_code).inc()
-                    self.metrics.provider_latency_seconds.labels(provider=provider.name).observe(latency_ms / 1000)
-                    if is_retryable(error):
-                        self.metrics.retries_total.labels(provider=provider.name).inc()
+                self._record_provider_failure_metrics(provider.name, error.code, latency_ms)
+                if self.metrics is not None and is_retryable(error):
+                    self.metrics.retries_total.labels(provider=provider.name).inc()
                 attempts.append(
                     PaymentAttempt(
                         provider.name,
@@ -220,12 +234,15 @@ class PaymentService:
                 )
                 raise
             except Exception:
+                latency_ms = (time.perf_counter() - started) * 1000
                 self.router.finish_request(
                     provider,
                     success=False,
-                    latency_ms=(time.perf_counter() - started) * 1000,
+                    latency_ms=latency_ms,
+                    error_code="INTERNAL_ERROR",
                 )
                 self._set_inflight_metric(provider.name)
+                self._record_provider_failure_metrics(provider.name, "INTERNAL_ERROR", latency_ms)
                 raise
             await self._record_success(provider)
             latency_ms = (time.perf_counter() - started) * 1000

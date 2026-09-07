@@ -18,6 +18,11 @@ implemented by the SQLAlchemy adapter.
 
 Circuit evidence is generated for transitions observed by one process. The
 default outbox is in memory, and the external event worker, durable metrics
-shipping, and shared provider-health history remain deferred. Runtime readiness
-can check selected PostgreSQL and Redis clients, but Compose still starts the
-default in-memory profile unless the profile variables are explicitly set.
+shipping, and shared provider-health history remain deferred. Provider request
+totals, successes, failures, timeout counts, average latency, and p95 latency
+are process-local measurements; p95 uses the router's bounded recent-request
+window. Last success/failure timestamps are evidence from that same process,
+and unexpected adapter exceptions are counted under the bounded `other`
+failure category. Runtime readiness can check selected PostgreSQL and Redis
+clients, but Compose still starts the default in-memory profile unless the
+profile variables are explicitly set.

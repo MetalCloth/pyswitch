@@ -99,12 +99,19 @@ def _provider_config(provider) -> dict[str, object]:
     }
 
 
-def _provider_stats(stats) -> dict[str, float | int]:
+def _provider_stats(stats) -> dict[str, object]:
     return {
         "recent_requests": len(stats.recent) if stats else 0,
+        "total_requests": stats.total_requests if stats else 0,
+        "successes": stats.successes if stats else 0,
+        "failures": stats.failures if stats else 0,
+        "timeouts": stats.timeouts if stats else 0,
         "success_rate": stats.success_rate if stats else 1.0,
         "average_latency_ms": stats.average_latency_ms if stats else 0.0,
+        "p95_latency_ms": stats.p95_latency_ms if stats else 0.0,
         "inflight": stats.inflight if stats else 0,
+        "last_success_at": stats.last_success_at.isoformat() if stats and stats.last_success_at else None,
+        "last_failure_at": stats.last_failure_at.isoformat() if stats and stats.last_failure_at else None,
     }
 
 

@@ -4,7 +4,7 @@ from httpx import ASGITransport, AsyncClient
 from pyswitch.api import create_app
 from pyswitch.config import Settings
 from pyswitch.providers.mock import MockProvider
-from pyswitch.routing import ProviderRouter
+from pyswitch.routing import ProviderRouter, ProviderStats
 from pyswitch.service import PaymentInput, PaymentService
 from pyswitch.store import InMemoryPaymentStore
 
@@ -79,6 +79,19 @@ def test_routing_strategy_is_validated_from_environment(monkeypatch):
     monkeypatch.setenv("PYSWITCH_ROUTING_STRATEGY", "random")
     with pytest.raises(ValueError, match="PYSWITCH_ROUTING_STRATEGY.*composite"):
         Settings.from_env()
+
+
+def test_provider_stats_keep_bounded_health_evidence_and_p95():
+    stats = ProviderStats(window_size=3)
+    stats.finish(success=True, latency_ms=10)
+    stats.finish(success=False, latency_ms=100, error_code="PROVIDER_TIMEOUT")
+    stats.finish(success=True, latency_ms=20)
+    stats.finish(success=True, latency_ms=40)
+    assert (stats.total_requests, stats.successes, stats.failures, stats.timeouts) == (4, 3, 1, 1)
+    assert len(stats.recent) == 3
+    assert stats.p95_latency_ms == 100
+    assert stats.last_success_at is not None
+    assert stats.last_failure_at is not None
 
 
 @pytest.mark.asyncio
