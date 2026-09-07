@@ -2,7 +2,7 @@ import json
 from contextlib import asynccontextmanager
 from uuid import UUID, uuid4
 
-from fastapi import FastAPI, Header, Query, Request
+from fastapi import Depends, FastAPI, Header, Query, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 from fastapi.exceptions import RequestValidationError
@@ -13,6 +13,10 @@ from .providers.base import ProviderError
 from .providers.mock import MockAdyenProvider, MockRazorpayProvider, MockStripeProvider
 from .service import PaymentInput, PaymentService
 from .store import InMemoryPaymentStore
+
+
+class AdminUnauthorized(Exception):
+    pass
 
 
 class PaymentMethod(BaseModel):
@@ -41,6 +45,28 @@ class PaymentResponse(BaseModel):
     status: PaymentStatus
     created_at: str
     request_id: str
+
+
+class ProviderConfigRequest(BaseModel):
+    success_rate: float | None = Field(default=None, ge=0, le=1)
+    min_latency_ms: int | None = Field(default=None, ge=0)
+    max_latency_ms: int | None = Field(default=None, ge=0)
+    timeout_probability: float | None = Field(default=None, ge=0, le=1)
+    server_error_probability: float | None = Field(default=None, ge=0, le=1)
+    decline_probability: float | None = Field(default=None, ge=0, le=1)
+
+
+def _provider_config(provider) -> dict[str, object]:
+    config = provider.config
+    return {
+        "success_rate": config.success_rate,
+        "min_latency_ms": config.min_latency_ms,
+        "max_latency_ms": config.max_latency_ms,
+        "timeout_probability": config.timeout_probability,
+        "server_error_probability": config.server_error_probability,
+        "decline_probability": config.decline_probability,
+        "forced_failure": config.forced_failure,
+    }
 
 
 def _payment_response(payment: Payment, request_id: str) -> PaymentResponse:
@@ -79,6 +105,14 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
     async def validation_error(request: Request, exc: RequestValidationError):
         return JSONResponse(status_code=422, content={"error": {"code": "VALIDATION_ERROR", "message": "Request validation failed", "request_id": request.state.request_id}})
 
+    @app.exception_handler(AdminUnauthorized)
+    async def admin_unauthorized(request: Request, exc: AdminUnauthorized):
+        return JSONResponse(status_code=401, content={"error": {"code": "VALIDATION_ERROR", "message": "Admin credentials are required", "request_id": request.state.request_id}})
+
+    async def require_admin(request: Request, x_admin_token: str | None = Header(default=None, alias="X-Admin-Token")):
+        if x_admin_token != request.app.state.settings.admin_token:
+            raise AdminUnauthorized
+
     @app.get("/health")
     async def health():
         return {"status": "ok"}
@@ -112,7 +146,43 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
 
     @app.get("/api/v1/providers")
     async def providers(request: Request):
-        return [{"name": p.name, "healthy": await p.health_check()} for p in request.app.state.service.providers]
+        return [{"name": p.name, "healthy": await p.health_check(), "config": _provider_config(p)} for p in request.app.state.service.providers]
+
+    @app.get("/api/v1/providers/{provider_name}")
+    async def provider_detail(provider_name: str, request: Request):
+        provider = next((p for p in request.app.state.service.providers if p.name == provider_name), None)
+        if provider is None:
+            return JSONResponse(status_code=404, content={"error": {"code": "VALIDATION_ERROR", "message": "Unknown provider", "request_id": request.state.request_id}})
+        return {"name": provider.name, "healthy": await provider.health_check(), "config": _provider_config(provider)}
+
+    @app.put("/api/v1/admin/providers/{provider_name}/config")
+    async def configure_provider(provider_name: str, payload: ProviderConfigRequest, request: Request, _: None = Depends(require_admin)):
+        provider = next((p for p in request.app.state.service.providers if p.name == provider_name), None)
+        if provider is None:
+            return JSONResponse(status_code=404, content={"error": {"code": "VALIDATION_ERROR", "message": "Unknown provider", "request_id": request.state.request_id}})
+        changes = payload.model_dump(exclude_none=True)
+        min_latency_ms = changes.get("min_latency_ms", provider.config.min_latency_ms)
+        max_latency_ms = changes.get("max_latency_ms", provider.config.max_latency_ms)
+        if max_latency_ms < min_latency_ms:
+            return JSONResponse(status_code=422, content={"error": {"code": "VALIDATION_ERROR", "message": "max_latency_ms must be at least min_latency_ms", "request_id": request.state.request_id}})
+        provider.configure(**changes)
+        return {"name": provider.name, "config": _provider_config(provider)}
+
+    @app.post("/api/v1/admin/providers/{provider_name}/fail")
+    async def fail_provider(provider_name: str, request: Request, _: None = Depends(require_admin)):
+        provider = next((p for p in request.app.state.service.providers if p.name == provider_name), None)
+        if provider is None:
+            return JSONResponse(status_code=404, content={"error": {"code": "VALIDATION_ERROR", "message": "Unknown provider", "request_id": request.state.request_id}})
+        provider.configure(forced_failure=True)
+        return {"name": provider.name, "healthy": False}
+
+    @app.post("/api/v1/admin/providers/{provider_name}/recover")
+    async def recover_provider(provider_name: str, request: Request, _: None = Depends(require_admin)):
+        provider = next((p for p in request.app.state.service.providers if p.name == provider_name), None)
+        if provider is None:
+            return JSONResponse(status_code=404, content={"error": {"code": "VALIDATION_ERROR", "message": "Unknown provider", "request_id": request.state.request_id}})
+        provider.configure(forced_failure=False)
+        return {"name": provider.name, "healthy": True}
 
     return app
 
