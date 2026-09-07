@@ -11,7 +11,7 @@ from .outbox import OutboxRepository
 from .observability import Metrics, log_circuit_transition
 from .providers.base import PaymentProvider, ProviderError
 from .reliability import CircuitBreaker, RetryPolicy, is_retryable, run_with_retry
-from .routing import ProviderRouter, RoutingStrategy
+from .routing import CompositeWeights, ProviderRouter, RoutingStrategy
 from .repositories import PaymentRepository
 
 
@@ -60,13 +60,14 @@ class PaymentService:
         outbox: OutboxRepository | None = None,
         metrics: Metrics | None = None,
         routing_strategy: RoutingStrategy = "round_robin",
+        composite_weights: CompositeWeights | None = None,
         provider_concurrency_limit: int = 0,
     ) -> None:
         if provider_concurrency_limit < 0:
             raise ValueError("provider_concurrency_limit must be zero or positive")
         self.providers = providers
         self.store = store
-        self.router = ProviderRouter(routing_strategy)
+        self.router = ProviderRouter(routing_strategy, composite_weights=composite_weights)
         self.retry_policy = retry_policy or RetryPolicy()
         self.idempotency = idempotency or MemoryIdempotencyCoordinator()
         self.outbox = outbox if outbox is not None else (store if hasattr(store, "append") else None)

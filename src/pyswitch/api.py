@@ -16,7 +16,7 @@ from .rate_limit import RateLimitUnavailable, RateLimiter
 from .observability import Metrics, log_request
 from .providers.base import ProviderError
 from .providers.mock import MockAdyenProvider, MockRazorpayProvider, MockStripeProvider
-from .routing import ROUTING_STRATEGIES
+from .routing import MAX_COMPOSITE_WEIGHT, CompositeWeights, ROUTING_STRATEGIES
 from .service import IdempotencyConflict, PaymentInput, PaymentService, RefundError
 from .runtime import Runtime, build_runtime
 
@@ -65,6 +65,10 @@ class ProviderConfigRequest(BaseModel):
 
 class RoutingConfigRequest(BaseModel):
     strategy: str
+    composite_success_weight: float | None = Field(default=None, ge=0, le=MAX_COMPOSITE_WEIGHT)
+    composite_latency_weight: float | None = Field(default=None, ge=0, le=MAX_COMPOSITE_WEIGHT)
+    composite_load_weight: float | None = Field(default=None, ge=0, le=MAX_COMPOSITE_WEIGHT)
+    composite_recent_failure_weight: float | None = Field(default=None, ge=0, le=MAX_COMPOSITE_WEIGHT)
 
     @field_validator("strategy")
     @classmethod
@@ -137,6 +141,7 @@ def create_app(
             outbox=runtime.outbox,
             metrics=metrics,
             routing_strategy=settings.routing_strategy,
+            composite_weights=settings.composite_weights,
             provider_concurrency_limit=settings.provider_concurrency_limit,
         )
     else:
@@ -307,6 +312,28 @@ def create_app(
     @app.put("/api/v1/admin/routing")
     async def configure_routing(payload: RoutingConfigRequest, request: Request, _: None = Depends(require_admin)):
         request.app.state.service.router.set_strategy(payload.strategy)
+        weight_values = {
+            "success": payload.composite_success_weight,
+            "latency": payload.composite_latency_weight,
+            "load": payload.composite_load_weight,
+            "recent_failure": payload.composite_recent_failure_weight,
+        }
+        if any(value is not None for value in weight_values.values()):
+            current = request.app.state.service.router.composite_weights
+            request.app.state.service.router.set_composite_weights(
+                CompositeWeights(
+                    success=current.success if weight_values["success"] is None else weight_values["success"],
+                    latency=current.latency if weight_values["latency"] is None else weight_values["latency"],
+                    load=current.load if weight_values["load"] is None else weight_values["load"],
+                    recent_failure=current.recent_failure
+                    if weight_values["recent_failure"] is None
+                    else weight_values["recent_failure"],
+                )
+            )
+            return {
+                "strategy": request.app.state.service.router.strategy,
+                "composite_weights": request.app.state.service.router.composite_weights.as_dict(),
+            }
         return {"strategy": request.app.state.service.router.strategy}
 
     @app.put("/api/v1/admin/providers/{provider_name}/config")

@@ -2,7 +2,7 @@ from collections import deque
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from math import ceil
+from math import ceil, isfinite
 from typing import Literal
 
 from .providers.base import PaymentProvider
@@ -22,6 +22,35 @@ ROUTING_STRATEGIES: tuple[RoutingStrategy, ...] = (
     "highest_success_rate",
     "composite",
 )
+MAX_COMPOSITE_WEIGHT = 5.0
+
+
+@dataclass(frozen=True, slots=True)
+class CompositeWeights:
+    """Bounded exponents for the provider-neutral composite score."""
+
+    success: float = 1.0
+    latency: float = 1.0
+    load: float = 1.0
+    recent_failure: float = 0.0
+
+    def __post_init__(self) -> None:
+        for name, value in (
+            ("success", self.success),
+            ("latency", self.latency),
+            ("load", self.load),
+            ("recent_failure", self.recent_failure),
+        ):
+            if not isfinite(value) or not 0 <= value <= MAX_COMPOSITE_WEIGHT:
+                raise ValueError(f"composite {name} weight must be between 0 and {MAX_COMPOSITE_WEIGHT}")
+
+    def as_dict(self) -> dict[str, float]:
+        return {
+            "success": self.success,
+            "latency": self.latency,
+            "load": self.load,
+            "recent_failure": self.recent_failure,
+        }
 
 
 @dataclass(slots=True)
@@ -61,6 +90,10 @@ class ProviderStats:
         return sum(success for success, _ in self.recent) / len(self.recent) if self.recent else 1.0
 
     @property
+    def recent_failure_rate(self) -> float:
+        return 1.0 - self.success_rate
+
+    @property
     def average_latency_ms(self) -> float:
         return sum(latency for _, latency in self.recent) / len(self.recent) if self.recent else 0.0
 
@@ -73,7 +106,13 @@ class ProviderStats:
 
 
 class ProviderRouter:
-    def __init__(self, strategy: RoutingStrategy = "round_robin", *, window_size: int = 20) -> None:
+    def __init__(
+        self,
+        strategy: RoutingStrategy = "round_robin",
+        *,
+        window_size: int = 20,
+        composite_weights: CompositeWeights | None = None,
+    ) -> None:
         if strategy not in ROUTING_STRATEGIES:
             choices = ", ".join(ROUTING_STRATEGIES)
             raise ValueError(f"routing strategy must be one of: {choices}; got {strategy!r}")
@@ -84,12 +123,16 @@ class ProviderRouter:
         self._weighted_current: dict[str, float] = {}
         self.stats: dict[str, ProviderStats] = {}
         self.window_size = window_size
+        self.composite_weights = composite_weights or CompositeWeights()
 
     def set_strategy(self, strategy: RoutingStrategy) -> None:
         if strategy not in ROUTING_STRATEGIES:
             choices = ", ".join(ROUTING_STRATEGIES)
             raise ValueError(f"routing strategy must be one of: {choices}; got {strategy!r}")
         self.strategy = strategy
+
+    def set_composite_weights(self, weights: CompositeWeights) -> None:
+        self.composite_weights = weights
 
     def _stats_for(self, provider: PaymentProvider) -> ProviderStats:
         return self.stats.setdefault(provider.name, ProviderStats(self.window_size))
@@ -152,7 +195,13 @@ class ProviderRouter:
 
     def _composite_score(self, provider: PaymentProvider) -> float:
         stats = self._stats_for(provider)
-        return stats.success_rate / (1.0 + stats.average_latency_ms / 1000.0) / (1.0 + stats.inflight)
+        weights = self.composite_weights
+        return (
+            stats.success_rate**weights.success
+            / (1.0 + stats.average_latency_ms / 1000.0) ** weights.latency
+            / (1.0 + stats.inflight) ** weights.load
+            / (1.0 + stats.recent_failure_rate) ** weights.recent_failure
+        )
 
 
 class RoundRobinRouter(ProviderRouter):

@@ -28,6 +28,28 @@ The supported variables are:
 | `PYSWITCH_KAFKA_BOOTSTRAP_SERVERS` | Kafka bootstrap list | `redpanda:9092` |
 | `PYSWITCH_KAFKA_TOPIC` | Kafka topic | `pyswitch.events` |
 
+Routing can be selected independently with `PYSWITCH_ROUTING_STRATEGY`. For
+the `composite` strategy, the optional bounded variables
+`PYSWITCH_ROUTING_COMPOSITE_SUCCESS_WEIGHT`,
+`PYSWITCH_ROUTING_COMPOSITE_LATENCY_WEIGHT`,
+`PYSWITCH_ROUTING_COMPOSITE_LOAD_WEIGHT`, and
+`PYSWITCH_ROUTING_COMPOSITE_RECENT_FAILURE_WEIGHT` accept values from 0 to 5.
+The authenticated `PUT /api/v1/admin/routing-strategy` endpoint accepts the
+same values as `composite_success_weight`,
+`composite_latency_weight`, `composite_load_weight`, and
+`composite_recent_failure_weight` alongside the required `strategy` field.
+Omitted weights retain their current values.
+
+```json
+{
+  "strategy": "composite",
+  "composite_success_weight": 1,
+  "composite_latency_weight": 2,
+  "composite_load_weight": 1,
+  "composite_recent_failure_weight": 3
+}
+```
+
 For example, this selects all optional adapters:
 
 ```bash
