@@ -33,6 +33,7 @@ class PaymentRow(Base):
     status: Mapped[str] = mapped_column(String(20), nullable=False)
     payment_method_type: Mapped[str] = mapped_column(String(30), nullable=False)
     idempotency_key: Mapped[str] = mapped_column(String(255), nullable=False)
+    request_fingerprint: Mapped[str] = mapped_column(String(64), nullable=False)
     provider: Mapped[str | None] = mapped_column(String(50))
     provider_reference: Mapped[str | None] = mapped_column(String(255))
     refunded_amount: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
@@ -78,4 +79,3 @@ class OutboxEventRow(Base):
     payload: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-

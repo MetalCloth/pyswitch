@@ -18,7 +18,7 @@ def upgrade() -> None:
         sa.Column("merchant_id", sa.String(100), sa.ForeignKey("merchants.id"), nullable=False),
         sa.Column("amount", sa.Integer, nullable=False), sa.Column("currency", sa.String(3), nullable=False),
         sa.Column("status", sa.String(20), nullable=False), sa.Column("payment_method_type", sa.String(30), nullable=False),
-        sa.Column("idempotency_key", sa.String(255), nullable=False), sa.Column("provider", sa.String(50)),
+        sa.Column("idempotency_key", sa.String(255), nullable=False), sa.Column("request_fingerprint", sa.String(64), nullable=False), sa.Column("provider", sa.String(50)),
         sa.Column("provider_reference", sa.String(255)), sa.Column("refunded_amount", sa.Integer, nullable=False, server_default="0"),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False), sa.Column("updated_at", sa.DateTime(timezone=True), nullable=False),
         sa.UniqueConstraint("merchant_id", "idempotency_key", name="uq_payments_merchant_idempotency"),
@@ -52,4 +52,3 @@ def downgrade() -> None:
     op.drop_index("ix_payments_merchant_created", table_name="payments")
     op.drop_table("payments")
     op.drop_table("merchants")
-

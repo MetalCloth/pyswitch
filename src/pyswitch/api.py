@@ -1,4 +1,3 @@
-import json
 from contextlib import asynccontextmanager
 from uuid import UUID, uuid4
 
@@ -11,7 +10,7 @@ from .config import Settings
 from .domain import Payment, PaymentStatus
 from .providers.base import ProviderError
 from .providers.mock import MockAdyenProvider, MockRazorpayProvider, MockStripeProvider
-from .service import PaymentInput, PaymentService
+from .service import IdempotencyConflict, PaymentInput, PaymentService, RefundError
 from .store import InMemoryPaymentStore
 
 
@@ -54,6 +53,17 @@ class ProviderConfigRequest(BaseModel):
     timeout_probability: float | None = Field(default=None, ge=0, le=1)
     server_error_probability: float | None = Field(default=None, ge=0, le=1)
     decline_probability: float | None = Field(default=None, ge=0, le=1)
+
+
+class RefundRequest(BaseModel):
+    amount: int | None = Field(default=None, gt=0)
+
+
+class RefundResponse(BaseModel):
+    id: UUID
+    payment_id: UUID
+    amount: int
+    request_id: str
 
 
 def _provider_config(provider) -> dict[str, object]:
@@ -109,6 +119,15 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
     async def admin_unauthorized(request: Request, exc: AdminUnauthorized):
         return JSONResponse(status_code=401, content={"error": {"code": "VALIDATION_ERROR", "message": "Admin credentials are required", "request_id": request.state.request_id}})
 
+    @app.exception_handler(IdempotencyConflict)
+    async def idempotency_conflict(request: Request, exc: IdempotencyConflict):
+        return JSONResponse(status_code=409, content={"error": {"code": exc.code, "message": str(exc), "request_id": request.state.request_id}})
+
+    @app.exception_handler(RefundError)
+    async def refund_error(request: Request, exc: RefundError):
+        status_code = 503 if exc.code == "PROVIDER_UNAVAILABLE" else 422
+        return JSONResponse(status_code=status_code, content={"error": {"code": exc.code, "message": str(exc), "request_id": request.state.request_id}})
+
     async def require_admin(request: Request, x_admin_token: str | None = Header(default=None, alias="X-Admin-Token")):
         if x_admin_token != request.app.state.settings.admin_token:
             raise AdminUnauthorized
@@ -143,6 +162,11 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
     @app.get("/api/v1/payments", response_model=list[PaymentResponse])
     async def list_payments(request: Request, merchant_id: str | None = Query(default=None)):
         return [_payment_response(p, request.state.request_id) for p in await request.app.state.service.store.list(merchant_id)]
+
+    @app.post("/api/v1/payments/{payment_id}/refund", response_model=RefundResponse)
+    async def refund_payment(payment_id: UUID, payload: RefundRequest, request: Request):
+        refund = await request.app.state.service.refund(payment_id, payload.amount)
+        return RefundResponse(id=refund.id, payment_id=refund.payment_id, amount=refund.amount, request_id=request.state.request_id)
 
     @app.get("/api/v1/providers")
     async def providers(request: Request):

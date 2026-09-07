@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 
@@ -61,3 +63,36 @@ async def test_provider_config_updates_and_validates_latency_range(app):
         updated = await client.put("/api/v1/admin/providers/mockadyen/config", headers=headers, json={"min_latency_ms": 10, "max_latency_ms": 20})
         assert updated.status_code == 200
         assert updated.json()["config"]["max_latency_ms"] == 20
+
+
+async def test_idempotency_conflict_is_rejected(app):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        headers = {"Idempotency-Key": "same-key"}
+        body = {"merchant_id": "merchant_123", "amount": 100, "currency": "INR", "payment_method": {"type": "card", "token": "test_card"}}
+        assert (await client.post("/api/v1/payments", headers=headers, json=body)).status_code == 201
+        changed = {**body, "amount": 101}
+        response = await client.post("/api/v1/payments", headers=headers, json=changed)
+        assert response.status_code == 409
+        assert response.json()["error"]["code"] == "DUPLICATE_REQUEST"
+
+
+async def test_partial_full_and_concurrent_refunds_are_bounded(app):
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        body = {"merchant_id": "merchant_123", "amount": 100, "currency": "INR", "payment_method": {"type": "card", "token": "test_card"}}
+        created = await client.post("/api/v1/payments", headers={"Idempotency-Key": "refund-key"}, json=body)
+        payment_id = created.json()["id"]
+        partial = await client.post(f"/api/v1/payments/{payment_id}/refund", json={"amount": 40})
+        assert partial.status_code == 200
+        assert partial.json()["amount"] == 40
+
+        results = await asyncio.gather(
+            client.post(f"/api/v1/payments/{payment_id}/refund", json={"amount": 60}),
+            client.post(f"/api/v1/payments/{payment_id}/refund", json={"amount": 60}),
+        )
+        assert sorted(response.status_code for response in results) == [200, 422]
+        fetched = await client.get(f"/api/v1/payments/{payment_id}")
+        assert fetched.json()["status"] == "REFUNDED"
+        over_refund = await client.post(f"/api/v1/payments/{payment_id}/refund", json={"amount": 1})
+        assert over_refund.status_code == 422
