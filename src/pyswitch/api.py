@@ -9,6 +9,7 @@ from fastapi.exceptions import RequestValidationError
 from .config import Settings
 from .domain import Payment, PaymentStatus
 from .idempotency import IdempotencyUnavailable
+from .rate_limit import InMemoryTokenBucketLimiter, RateLimitUnavailable, RateLimiter
 from .providers.base import ProviderError
 from .providers.mock import MockAdyenProvider, MockRazorpayProvider, MockStripeProvider
 from .service import IdempotencyConflict, PaymentInput, PaymentService, RefundError
@@ -84,10 +85,11 @@ def _payment_response(payment: Payment, request_id: str) -> PaymentResponse:
     return PaymentResponse(id=payment.id, merchant_id=payment.merchant_id, amount=payment.amount, currency=payment.currency, status=payment.status, created_at=payment.created_at.isoformat(), request_id=request_id)
 
 
-def create_app(settings: Settings | None = None, service: PaymentService | None = None) -> FastAPI:
+def create_app(settings: Settings | None = None, service: PaymentService | None = None, rate_limiter: RateLimiter | None = None) -> FastAPI:
     settings = settings or Settings.from_env()
     if service is None:
         service = PaymentService([MockStripeProvider(), MockAdyenProvider(), MockRazorpayProvider()], InMemoryPaymentStore())
+    rate_limiter = rate_limiter or InMemoryTokenBucketLimiter(capacity=settings.rate_limit_capacity, refill_per_second=settings.rate_limit_refill_per_second)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -96,6 +98,7 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
     app = FastAPI(title="PySwitch", version="0.1.0", lifespan=lifespan)
     app.state.service = service
     app.state.settings = settings
+    app.state.rate_limiter = rate_limiter
 
     @app.middleware("http")
     async def request_id(request: Request, call_next):
@@ -128,6 +131,10 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
     async def idempotency_unavailable(request: Request, exc: IdempotencyUnavailable):
         return JSONResponse(status_code=503, content={"error": {"code": exc.code, "message": "Idempotency coordination is unavailable", "request_id": request.state.request_id}})
 
+    @app.exception_handler(RateLimitUnavailable)
+    async def rate_limit_unavailable(request: Request, exc: RateLimitUnavailable):
+        return JSONResponse(status_code=503, content={"error": {"code": exc.code, "message": "Rate limiting is unavailable", "request_id": request.state.request_id}})
+
     @app.exception_handler(RefundError)
     async def refund_error(request: Request, exc: RefundError):
         status_code = 503 if exc.code == "PROVIDER_UNAVAILABLE" else 422
@@ -148,14 +155,23 @@ def create_app(settings: Settings | None = None, service: PaymentService | None 
 
     @app.post("/api/v1/payments", response_model=PaymentResponse, status_code=201)
     async def create_payment(payload: CreatePaymentRequest, request: Request, idempotency_key: str | None = Header(default=None, alias="Idempotency-Key")):
+        limit = await request.app.state.rate_limiter.consume(payload.merchant_id)
+        rate_headers = {
+            "X-RateLimit-Limit": str(limit.limit),
+            "X-RateLimit-Remaining": str(limit.remaining),
+        }
+        if not limit.allowed:
+            rate_headers["Retry-After"] = str(limit.retry_after_seconds)
+            return JSONResponse(status_code=429, headers=rate_headers, content={"error": {"code": "RATE_LIMITED", "message": "Merchant rate limit exceeded", "request_id": request.state.request_id}})
         if not idempotency_key:
-            return JSONResponse(status_code=400, content={"error": {"code": "VALIDATION_ERROR", "message": "Idempotency-Key header is required", "request_id": request.state.request_id}})
+            return JSONResponse(status_code=400, headers=rate_headers, content={"error": {"code": "VALIDATION_ERROR", "message": "Idempotency-Key header is required", "request_id": request.state.request_id}})
         if payload.currency not in request.app.state.settings.supported_currencies:
-            return JSONResponse(status_code=422, content={"error": {"code": "VALIDATION_ERROR", "message": "Unsupported currency", "request_id": request.state.request_id}})
+            return JSONResponse(status_code=422, headers=rate_headers, content={"error": {"code": "VALIDATION_ERROR", "message": "Unsupported currency", "request_id": request.state.request_id}})
         if payload.payment_method.type != "card" or not payload.payment_method.token.startswith("test_"):
-            return JSONResponse(status_code=422, content={"error": {"code": "VALIDATION_ERROR", "message": "A synthetic payment token is required", "request_id": request.state.request_id}})
+            return JSONResponse(status_code=422, headers=rate_headers, content={"error": {"code": "VALIDATION_ERROR", "message": "A synthetic payment token is required", "request_id": request.state.request_id}})
         payment = await request.app.state.service.create(PaymentInput(payload.merchant_id, payload.amount, payload.currency, payload.payment_method.type, payload.payment_method.token, idempotency_key))
-        return _payment_response(payment, request.state.request_id)
+        response = _payment_response(payment, request.state.request_id)
+        return JSONResponse(status_code=201, headers=rate_headers, content=response.model_dump(mode="json"))
 
     @app.get("/api/v1/payments/{payment_id}", response_model=PaymentResponse)
     async def get_payment(payment_id: UUID, request: Request):
