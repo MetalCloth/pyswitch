@@ -5,7 +5,9 @@ import time
 from dataclasses import dataclass
 
 from .domain import Payment, PaymentAttempt, PaymentStatus, Refund
+from .events import EventEnvelope, EventType
 from .idempotency import IdempotencyCoordinator, IdempotencyStatus, IdempotencyUnavailable, MemoryIdempotencyCoordinator
+from .outbox import OutboxRepository
 from .providers.base import PaymentProvider, ProviderError
 from .reliability import CircuitBreaker, RetryPolicy, is_retryable, run_with_retry
 from .routing import RoundRobinRouter
@@ -54,12 +56,14 @@ class PaymentService:
         circuit_failure_threshold: int = 3,
         circuit_cooldown_seconds: float = 30.0,
         idempotency: IdempotencyCoordinator | None = None,
+        outbox: OutboxRepository | None = None,
     ) -> None:
         self.providers = providers
         self.store = store
         self.router = RoundRobinRouter()
         self.retry_policy = retry_policy or RetryPolicy()
         self.idempotency = idempotency or MemoryIdempotencyCoordinator()
+        self.outbox = outbox if outbox is not None else (store if hasattr(store, "append") else None)
         self.circuits = {
             provider.name: CircuitBreaker(
                 failure_threshold=circuit_failure_threshold,
@@ -82,6 +86,25 @@ class PaymentService:
     async def _record_failure(self, provider: PaymentProvider) -> None:
         async with self._circuit_locks[provider.name]:
             self.circuits[provider.name].record_failure()
+
+    def _event(self, payment: Payment, event_type: EventType) -> EventEnvelope:
+        return EventEnvelope(
+            event_type,
+            payment.merchant_id,
+            payment.id,
+            {"payment_id": str(payment.id), "status": payment.status.value},
+            provider=payment.provider,
+        )
+
+    async def _save(self, payment: Payment, events: list[EventEnvelope] | None = None) -> None:
+        events = events or []
+        saver = getattr(self.store, "save_with_events", None)
+        if events and self.outbox is self.store and saver is not None:
+            await saver(payment, events)
+            return
+        await self.store.save(payment)
+        if events and self.outbox is not None:
+            await self.outbox.append(events)
 
     async def _attempt_provider(self, payment: Payment, provider: PaymentProvider, data: PaymentInput) -> object:
         attempts: list[PaymentAttempt] = []
@@ -160,7 +183,14 @@ class PaymentService:
                     payment.status = PaymentStatus.SUCCEEDED
                     payment.provider_reference = result.reference
                     payment.provider = candidate.name
-                    await self.store.save(payment)
+                    await self._save(
+                        payment,
+                        [
+                            self._event(payment, EventType.PAYMENT_CREATED),
+                            self._event(payment, EventType.PAYMENT_PROCESSING),
+                            self._event(payment, EventType.PAYMENT_SUCCEEDED),
+                        ],
+                    )
                     await self.idempotency.complete(data.merchant_id, data.idempotency_key, fingerprint, payment.id)
                     claimed = False
                     return payment
@@ -169,7 +199,14 @@ class PaymentService:
                     if exc.code not in {"PROVIDER_UNAVAILABLE", "HTTP_502", "HTTP_503", "CIRCUIT_OPEN"}:
                         break
             payment.status = PaymentStatus.FAILED
-            await self.store.save(payment)
+            await self._save(
+                payment,
+                [
+                    self._event(payment, EventType.PAYMENT_CREATED),
+                    self._event(payment, EventType.PAYMENT_PROCESSING),
+                    self._event(payment, EventType.PAYMENT_FAILED),
+                ],
+            )
             await self.idempotency.complete(data.merchant_id, data.idempotency_key, fingerprint, payment.id)
             claimed = False
             raise last_error or ProviderError("PROVIDER_UNAVAILABLE", "No provider completed the payment")
@@ -204,5 +241,5 @@ class PaymentService:
             payment.refunds.append(refund)
             if payment.refunded_amount == payment.amount:
                 payment.status = PaymentStatus.REFUNDED
-            await self.store.save(payment)
+            await self._save(payment, [self._event(payment, EventType.PAYMENT_REFUNDED)])
             return refund
