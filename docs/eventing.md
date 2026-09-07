@@ -54,7 +54,7 @@ This is a local simulation, not a production incident or delivery-latency measur
 4. Set the fake broker back to available and run the dispatcher again; the event publishes and is marked sent.
 5. Deliver the same envelope twice to each consumer; the first delivery is applied and the replay is ignored.
 
-The behavior is covered by `tests/test_events.py`. A live Redpanda/Kafka outage drill, broker retry policy, durable worker replay, and consumer offsets remain deferred until the optional `events` profile is run against a real broker.
+The behavior is covered by `tests/test_events.py` and `tests/test_outbox_worker.py`. The default app lifespan starts the bounded-retry worker for the selected outbox and stops it before the broker/resource shutdown. A live Redpanda/Kafka outage drill, durable worker replay, and consumer offsets remain deferred until the optional `events` profile is run against a real broker.
 
 ## Actual-observed implementation notes
 
