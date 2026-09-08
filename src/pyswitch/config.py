@@ -15,6 +15,14 @@ DEFAULT_KAFKA_BOOTSTRAP_SERVERS = "redpanda:9092"
 DEFAULT_KAFKA_TOPIC = "pyswitch.events"
 
 
+def normalize_database_url(value: str) -> str:
+    """Use SQLAlchemy's asyncpg driver for provider-neutral Postgres URLs."""
+    for prefix in ("postgres://", "postgresql://"):
+        if value.startswith(prefix):
+            return "postgresql+asyncpg://" + value[len(prefix) :]
+    return value
+
+
 def _backend(name: str, value: str, allowed: tuple[str, ...]) -> str:
     if value not in allowed:
         choices = ", ".join(allowed)
@@ -58,7 +66,7 @@ class Settings:
             os.getenv("PYSWITCH_EVENT_BACKEND", "memory"),
             ("memory", "kafka"),
         )
-        database_url = os.getenv("PYSWITCH_DATABASE_URL", DEFAULT_DATABASE_URL)
+        database_url = normalize_database_url(os.getenv("PYSWITCH_DATABASE_URL", DEFAULT_DATABASE_URL))
         redis_url = os.getenv("PYSWITCH_REDIS_URL", DEFAULT_REDIS_URL)
         kafka_bootstrap_servers = os.getenv("PYSWITCH_KAFKA_BOOTSTRAP_SERVERS", DEFAULT_KAFKA_BOOTSTRAP_SERVERS)
         kafka_topic = os.getenv("PYSWITCH_KAFKA_TOPIC", DEFAULT_KAFKA_TOPIC)

@@ -104,6 +104,7 @@ Further design references:
 - [`docs/adr/0008-adaptive-routing-strategies.md`](docs/adr/0008-adaptive-routing-strategies.md) — routing strategies, scoring, and local measurement limits.
 - [`docs/adr/0009-operational-health-evidence.md`](docs/adr/0009-operational-health-evidence.md) — circuit transition evidence, readiness, and list filters.
 - [`docs/load-testing.md`](docs/load-testing.md) — Locust fallback, measured load/query evidence, Kafka offset probe, and opt-in live dependency checks.
+- [`docs/render-deployment.md`](docs/render-deployment.md) — Render Blueprint deployment, public smoke checks, and bounded remote benchmarking.
 - [`scripts/observability_evidence.py`](scripts/observability_evidence.py) — sanitized Compose API, Prometheus, and Grafana verification.
 - [`benchmark/results`](benchmark/results) — raw local load, query-plan, and consumer-offset artifacts with environment metadata.
 

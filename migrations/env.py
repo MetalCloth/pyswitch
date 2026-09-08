@@ -8,12 +8,13 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from pyswitch.config import normalize_database_url
 from pyswitch.db.models import Base
 
 config = context.config
 if config.config_file_name:
     fileConfig(config.config_file_name)
-database_url = os.getenv("PYSWITCH_DATABASE_URL")
+database_url = normalize_database_url(os.getenv("PYSWITCH_DATABASE_URL", ""))
 if database_url:
     config.set_main_option("sqlalchemy.url", database_url.replace("%", "%%"))
 target_metadata = Base.metadata

@@ -19,6 +19,21 @@ PYSWITCH_RATE_LIMIT_REFILL_PER_SECOND=5000 \
 uvicorn pyswitch.main:app --host 127.0.0.1 --port 8000
 ```
 
+### What the user count means
+
+The runner's `--users` value is a cap on in-flight HTTP requests (virtual
+users). It is not a count of registered customers, and it is not a sustained
+concurrency guarantee. In a rate-based scenario, `--rate` schedules requests
+over time while `--users` limits how many may be in flight. In a concurrent
+scenario, the runner launches the requested batch with at most `--users`
+requests active at once. The idempotency scenario uses the same concurrency
+model but sends one shared synthetic key to test deduplication.
+
+For a rough product-level translation, active users depend on behavior: ten
+requests per second is about 100 active users if each makes one request every
+ten seconds, or about 600 if each makes one request per minute. The benchmark
+does not choose that behavior for a real customer population.
+
 Run the requested scenarios from a second terminal:
 
 ```bash

@@ -1,0 +1,50 @@
+# Public Render profile for the synthetic payment-orchestration demonstrator.
+# The event backend stays in memory because this Blueprint intentionally does
+# not provision a Kafka-compatible broker. Local Compose remains the full
+# PostgreSQL + Redis + Redpanda + Prometheus + Grafana profile.
+
+services:
+  - type: web
+    name: pyswitch-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    repo: https://github.com/MetalCloth/pyswitch.git
+    branch: main
+    region: singapore
+    plan: free
+    autoDeployTrigger: checksPass
+    healthCheckPath: /ready
+    envVars:
+      - key: PYSWITCH_ADMIN_TOKEN
+        generateValue: true
+      - key: PYSWITCH_STORAGE_BACKEND
+        value: postgres
+      - key: PYSWITCH_COORDINATION_BACKEND
+        value: redis
+      - key: PYSWITCH_EVENT_BACKEND
+        value: memory
+      - key: PYSWITCH_DATABASE_URL
+        fromDatabase:
+          name: pyswitch-db
+          property: connectionString
+      - key: PYSWITCH_REDIS_URL
+        fromService:
+          name: pyswitch-cache
+          type: keyvalue
+          property: connectionString
+
+  - type: keyvalue
+    name: pyswitch-cache
+    region: singapore
+    plan: free
+    ipAllowList: []
+    maxmemoryPolicy: noeviction
+    persistenceMode: off
+
+databases:
+  - name: pyswitch-db
+    databaseName: pyswitch
+    user: pyswitch
+    region: singapore
+    plan: free
