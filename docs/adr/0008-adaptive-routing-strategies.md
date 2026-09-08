@@ -33,6 +33,13 @@ opt-in.
 Provider adapters remain behind the common protocol. Routing does not contain
 Stripe, Adyen, Razorpay, or other provider-specific branches.
 
+The composite decision is split into a small functional core: mutable
+`ProviderStats` values are converted to frozen `ProviderObservation` snapshots,
+then `select_composite()` evaluates a tuple of frozen `RoutingCandidate` values.
+The function returns a candidate and does not mutate observations, counters, or
+provider adapters. The router remains responsible for collecting observations
+and applying the selected position to the live provider list.
+
 ## Consequences and limits
 
 Each strategy is deterministic for a fixed observation window, and an empty or

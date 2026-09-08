@@ -42,6 +42,13 @@ recent_failure_weight) = (1, 1, 1, 0)`, which preserve the original score.
 Weights are bounded to 0 through 5 and can be selected through environment
 settings or the authenticated routing admin endpoint.
 
+The composite policy has a functional core. `ProviderStats.snapshot()` converts
+mutable operational counters into frozen `ProviderObservation` values, and
+`select_composite()` consumes a tuple of frozen candidates and returns the
+highest-scoring candidate without changing router state. The surrounding router
+maps that candidate position back to the provider object; provider calls,
+metrics, and counters remain in the effectful service boundary.
+
 Empty candidate sets still raise `No healthy payment provider is available`.
 These observations are process-local and come from the mock providers in the
 default build; they are not production telemetry or a load-balancing result.
