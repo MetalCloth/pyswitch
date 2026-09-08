@@ -45,8 +45,8 @@ environment:
 
 | Artifact | Configuration | Observed result |
 | --- | --- | --- |
-| `benchmark/results/load-normal-100users-10rps-10s.json` | 100 users, 10 requests/s, 10 s | 100/100 HTTP 201; p95 5.760 ms |
-| `benchmark/results/load-concurrent-1000users.json` | 1,000 concurrent requests | 1,000/1,000 HTTP 201; p95 2,629.452 ms |
+| `benchmark/results/load-normal-100users-10rps-10s.json` | 100 users, 10 requests/s, 10 s | 100/100 HTTP 201; p95 5.485 ms |
+| `benchmark/results/load-concurrent-1000users.json` | 1,000 concurrent requests | 1,000/1,000 HTTP 201; p95 2,603.477 ms |
 | `benchmark/results/load-outage-mockstripe-100users-10rps-10s.json` | forced `mockstripe` outage and recovery | 200/200 payment requests HTTP 201; failover and provider snapshots recorded |
 | `benchmark/results/load-idempotency-500same-key.json` | 500 concurrent requests, one key | 500/500 HTTP 201; one distinct payment ID |
 
