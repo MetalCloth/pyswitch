@@ -1,10 +1,20 @@
+from dataclasses import FrozenInstanceError
+
 import pytest
 from httpx import ASGITransport, AsyncClient
 
 from pyswitch.api import create_app
 from pyswitch.config import Settings
 from pyswitch.providers.mock import MockProvider
-from pyswitch.routing import CompositeWeights, ProviderRouter, ProviderStats
+from pyswitch.routing import (
+    CompositeWeights,
+    ProviderObservation,
+    ProviderRouter,
+    ProviderStats,
+    RoutingCandidate,
+    composite_score,
+    select_composite,
+)
 from pyswitch.service import PaymentInput, PaymentService
 from pyswitch.store import InMemoryPaymentStore
 
@@ -73,6 +83,38 @@ async def test_composite_weights_can_emphasize_recent_failures():
     router.finish_request(items[0], success=True, latency_ms=10)
     router.finish_request(items[1], success=False, latency_ms=10)
     assert await choose(router, items) == ["a"]
+
+
+def test_composite_policy_uses_immutable_snapshots():
+    weights = CompositeWeights()
+    candidates = (
+        RoutingCandidate(0, "slow", ProviderObservation(average_latency_ms=500)),
+        RoutingCandidate(1, "fast", ProviderObservation(average_latency_ms=10)),
+    )
+
+    selected = select_composite(candidates, weights)
+
+    assert selected == candidates[1]
+    assert composite_score(candidates[0].observation, weights) == composite_score(
+        candidates[0].observation, weights
+    )
+    with pytest.raises(FrozenInstanceError):
+        candidates[0].observation = ProviderObservation()
+
+
+def test_provider_stats_snapshot_does_not_change_after_new_observation():
+    stats = ProviderStats(window_size=2)
+    stats.finish(success=True, latency_ms=10)
+    snapshot = stats.snapshot()
+
+    stats.finish(success=False, latency_ms=100)
+
+    assert snapshot == ProviderObservation(
+        success_rate=1.0,
+        average_latency_ms=10.0,
+        inflight=0,
+        recent_failure_rate=0.0,
+    )
 
 
 @pytest.mark.asyncio

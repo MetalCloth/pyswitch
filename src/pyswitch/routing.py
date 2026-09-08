@@ -53,6 +53,46 @@ class CompositeWeights:
         }
 
 
+@dataclass(frozen=True, slots=True)
+class ProviderObservation:
+    """Immutable provider health snapshot consumed by routing policies."""
+
+    success_rate: float = 1.0
+    average_latency_ms: float = 0.0
+    inflight: int = 0
+    recent_failure_rate: float = 0.0
+
+
+@dataclass(frozen=True, slots=True)
+class RoutingCandidate:
+    """Provider-free input for a deterministic routing decision."""
+
+    position: int
+    name: str
+    observation: ProviderObservation
+
+
+def composite_score(observation: ProviderObservation, weights: CompositeWeights) -> float:
+    """Calculate a provider score without mutating routing state."""
+
+    return (
+        observation.success_rate**weights.success
+        / (1.0 + observation.average_latency_ms / 1000.0) ** weights.latency
+        / (1.0 + observation.inflight) ** weights.load
+        / (1.0 + observation.recent_failure_rate) ** weights.recent_failure
+    )
+
+
+def select_composite(
+    candidates: tuple[RoutingCandidate, ...], weights: CompositeWeights
+) -> RoutingCandidate:
+    """Select the highest-scoring candidate from immutable routing inputs."""
+
+    if not candidates:
+        raise LookupError("No healthy payment provider is available")
+    return max(candidates, key=lambda candidate: composite_score(candidate.observation, weights))
+
+
 @dataclass(slots=True)
 class ProviderStats:
     """Bounded local observations used by provider-neutral routing strategies."""
@@ -103,6 +143,16 @@ class ProviderStats:
             return 0.0
         latencies = sorted(latency for _, latency in self.recent)
         return latencies[max(0, ceil(len(latencies) * 0.95) - 1)]
+
+    def snapshot(self) -> ProviderObservation:
+        """Return the immutable view used by pure routing policies."""
+
+        return ProviderObservation(
+            success_rate=self.success_rate,
+            average_latency_ms=self.average_latency_ms,
+            inflight=self.inflight,
+            recent_failure_rate=self.recent_failure_rate,
+        )
 
 
 class ProviderRouter:
@@ -161,7 +211,11 @@ class ProviderRouter:
             return min(providers, key=lambda provider: self._latency_key(provider, providers))
         if self.strategy == "highest_success_rate":
             return max(providers, key=lambda provider: self._success_key(provider, providers))
-        return max(providers, key=lambda provider: self._composite_score(provider))
+        candidates = tuple(
+            RoutingCandidate(index, provider.name, self._stats_for(provider).snapshot())
+            for index, provider in enumerate(providers)
+        )
+        return providers[select_composite(candidates, self.composite_weights).position]
 
     def _round_robin(self, providers: Sequence[PaymentProvider]) -> PaymentProvider:
         provider = providers[self._next % len(providers)]
@@ -192,17 +246,6 @@ class ProviderRouter:
     def _success_key(self, provider: PaymentProvider, providers: Sequence[PaymentProvider]) -> tuple[float, float, int, int]:
         stats = self._stats_for(provider)
         return (stats.success_rate, -stats.average_latency_ms, -stats.inflight, -providers.index(provider))
-
-    def _composite_score(self, provider: PaymentProvider) -> float:
-        stats = self._stats_for(provider)
-        weights = self.composite_weights
-        return (
-            stats.success_rate**weights.success
-            / (1.0 + stats.average_latency_ms / 1000.0) ** weights.latency
-            / (1.0 + stats.inflight) ** weights.load
-            / (1.0 + stats.recent_failure_rate) ** weights.recent_failure
-        )
-
 
 class RoundRobinRouter(ProviderRouter):
     """Compatibility name for callers that explicitly want default routing."""
