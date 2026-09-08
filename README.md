@@ -27,6 +27,11 @@ docker compose up --build
 
 It exposes the API on `8000`, Prometheus on `9090`, Grafana on `3000` (`admin/admin`), PostgreSQL on `5432`, Redis on `6379`, and Redpanda's external Kafka port on `19092`. The app container selects the PostgreSQL, Redis, and Kafka adapters explicitly, runs `alembic upgrade head` before starting Uvicorn, and waits on dependency healthchecks. `/metrics` is available on the API. The standalone command above keeps the default process-local profile.
 
+Compose publishes those host ports by default, and each can be overridden when
+the host already uses one. For example, `PYSWITCH_POSTGRES_PORT=15432 docker
+compose up --build` changes only the host mapping; service-to-service URLs keep
+using their container ports.
+
 Runtime dependencies are selected explicitly with `PYSWITCH_STORAGE_BACKEND=memory|postgres`, `PYSWITCH_COORDINATION_BACKEND=memory|redis`, and `PYSWITCH_EVENT_BACKEND=memory|kafka`. Connection variables are `PYSWITCH_DATABASE_URL`, `PYSWITCH_REDIS_URL`, `PYSWITCH_KAFKA_BOOTSTRAP_SERVERS`, and `PYSWITCH_KAFKA_TOPIC`; their defaults target the local Compose service names. The default values keep the app process-local. See [`docs/runtime-profiles.md`](docs/runtime-profiles.md) for the complete contract and optional dependency commands.
 
 Provider calls are unlimited by default for compatibility. Set `PYSWITCH_PROVIDER_CONCURRENCY_LIMIT` to a positive value for a process-wide limit on every provider, or set `max_concurrency` through `PUT /api/v1/admin/providers/{provider}/config` for one provider (`0` disables that provider's limit). The app lifespan starts a bounded-retry outbox worker and stops it before runtime resources close. The worker proves local retry/recovery behavior; it does not claim durable Kafka delivery or cross-process worker coordination.
