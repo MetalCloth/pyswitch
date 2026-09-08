@@ -73,6 +73,14 @@ stress scenarios only after observing the service's CPU, memory, database
 connections, and error rate. Local results in [`load-testing.md`](load-testing.md)
 are comparison evidence, not a prediction of Render capacity.
 
+The first public run is captured in
+[`benchmark/results/render-smoke-20260908.json`](../benchmark/results/render-smoke-20260908.json):
+health and readiness returned 200, the synthetic payment returned 201, the
+20-request baseline returned 20 successful responses, the 50-request burst
+returned 50 successful responses, and the 25-request idempotency check returned
+one distinct payment ID. The remote burst p95 was 3.769 seconds, so this is
+deployment and correctness evidence rather than a capacity claim.
+
 ## Remove the demo
 
 Delete or suspend the Blueprint from the Render Dashboard when the public URL

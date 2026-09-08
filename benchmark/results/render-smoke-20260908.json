@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-09-08T08:10:24.803363+00:00",
+  "git_commit": "053420a1d7729ad2c6fb852f63d1503e4b44d6ad",
+  "platform": "Render",
+  "region": "singapore",
+  "base_url": "https://pyswitch-api.onrender.com",
+  "profile": {
+    "storage_backend": "postgres",
+    "coordination_backend": "redis",
+    "event_backend": "memory",
+    "providers": "deterministic mocks"
+  },
+  "checks": {
+    "health": {"status_code": 200, "status": "ok"},
+    "ready": {
+      "status_code": 200,
+      "status": "ready",
+      "storage": "ready",
+      "coordination": "ready",
+      "events": "ready"
+    },
+    "synthetic_payment": {"status_code": 201, "status": "SUCCEEDED"}
+  },
+  "scenarios": [
+    {
+      "name": "normal",
+      "users": 10,
+      "rate_per_second": 2.0,
+      "duration_seconds": 10.0,
+      "requests": 20,
+      "status_counts": {"201": 20},
+      "p50_latency_ms": 195.77,
+      "p95_latency_ms": 289.188,
+      "p99_latency_ms": 289.188,
+      "observed_requests_per_second": 2.049,
+      "distinct_payment_ids": 20
+    },
+    {
+      "name": "concurrent",
+      "users": 25,
+      "requests": 50,
+      "status_counts": {"201": 50},
+      "p50_latency_ms": 2510.337,
+      "p95_latency_ms": 3769.299,
+      "p99_latency_ms": 3984.942,
+      "observed_requests_per_second": 8.433,
+      "distinct_payment_ids": 50
+    },
+    {
+      "name": "idempotency",
+      "users": 25,
+      "requests": 25,
+      "status_counts": {"201": 25},
+      "p50_latency_ms": 1876.6,
+      "p95_latency_ms": 2170.329,
+      "p99_latency_ms": 2344.871,
+      "observed_requests_per_second": 10.377,
+      "distinct_payment_ids": 1
+    }
+  ],
+  "privacy": "Synthetic requests only; payment identifiers, request identifiers, idempotency keys, and admin credentials are omitted."
+}
