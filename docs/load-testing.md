@@ -98,6 +98,27 @@ artifact. This verifies local Kafka group-offset behavior and the existing
 UUID-deduplicating consumer contract; external side effects and a long-lived
 production consumer deployment remain outside this repository.
 
+## Compose observability check
+
+`scripts/observability_evidence.py` exercises the explicit Compose profile and
+records only health statuses, metric-series counts, dashboard titles, and
+datasource status. It creates one synthetic payment, waits for a Prometheus
+scrape, verifies the provisioned Grafana dashboard and Prometheus datasource,
+and writes `benchmark/results/observability-compose.json`:
+
+```bash
+python scripts/observability_evidence.py \
+  --app-url http://127.0.0.1:8000 \
+  --prometheus-url http://127.0.0.1:9090 \
+  --grafana-url http://127.0.0.1:3000
+```
+
+The committed run returned API health/readiness 200, accepted the synthetic
+payment with 201, found one Prometheus payment series, found two Grafana
+dashboard entries, and reported an `OK` Prometheus datasource. Credentials,
+tokens, idempotency keys, and payment identifiers are omitted from the
+artifact.
+
 Live dependency smoke checks remain opt-in:
 
 ```bash

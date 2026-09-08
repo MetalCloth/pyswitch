@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "recorded_at_utc": "2026-09-07T23:42:23.189088+00:00",
+  "git_commit": "6ddd535b003978d8a856dbb6fab795fc40509f27",
+  "runtime": {
+    "python": "3.14.7",
+    "platform": "Linux-7.1.9-arch1-2-x86_64-with-glibc2.44"
+  },
+  "configuration": {
+    "app_url": "http://127.0.0.1:18081",
+    "prometheus_url": "http://127.0.0.1:19091",
+    "grafana_url": "http://127.0.0.1:13001",
+    "scrape_wait_seconds": 12.0,
+    "synthetic_only": true
+  },
+  "checks": {
+    "app_health": {
+      "status_code": 200,
+      "status": "ok"
+    },
+    "app_ready": {
+      "status_code": 200,
+      "status": "ready"
+    },
+    "synthetic_payment": {
+      "status_code": 201,
+      "accepted": true
+    },
+    "prometheus_ready": {
+      "status_code": 200,
+      "body": "Prometheus Server is Ready.\n"
+    },
+    "prometheus_payment_series": {
+      "status_code": 200,
+      "result_count": 1
+    },
+    "grafana_health": {
+      "status_code": 200,
+      "database": "ok",
+      "version": "11.3.1"
+    },
+    "grafana_dashboards": {
+      "status_code": 200,
+      "count": 2,
+      "titles": [
+        "PySwitch",
+        "PySwitch Operations"
+      ]
+    },
+    "grafana_prometheus_datasource": {
+      "status_code": 200,
+      "status": "OK"
+    }
+  },
+  "privacy": "Synthetic credentials, tokens, idempotency keys, and payment identifiers are omitted; only statuses, counts, and dashboard metadata are recorded."
+}

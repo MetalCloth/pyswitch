@@ -24,8 +24,8 @@ request totals, successes, failures, timeouts, average and p95 latency, current
 in-flight count, and last success/failure timestamps. These values are local
 process observations; the repository has no shared health history yet.
 
-The provisioned dashboard covers payment status rate, provider latency p95, circuit state, and rate-limit rejections. Panels are configuration only. Bounded HTTP load, PostgreSQL query-plan, and Kafka consumer-offset measurements are stored as raw JSON under `benchmark/results`; they are separate from dashboard collection and are not production performance claims.
+The provisioned dashboard covers payment status rate, provider latency p95, circuit state, and rate-limit rejections. `scripts/observability_evidence.py` verifies the dashboard is provisioned, its Prometheus datasource is healthy, and a synthetic payment produces a Prometheus series; the sanitized result is stored at `benchmark/results/observability-compose.json`. Bounded HTTP load, PostgreSQL query-plan, and Kafka consumer-offset measurements are also stored as raw JSON under `benchmark/results`; these are local checks rather than production telemetry.
 
 ## Local stack boundary
 
-`docker-compose.yml` provisions FastAPI, PostgreSQL, Redis, Redpanda, Prometheus, and Grafana with container healthchecks. Prometheus waits for the app healthcheck and Grafana waits for Prometheus. The current app still uses its in-memory repository, in-memory Redis seams, and in-memory broker by default; Compose healthchecks prove container readiness, not application use of those external services.
+`docker-compose.yml` provisions FastAPI, PostgreSQL, Redis, Redpanda, Prometheus, and Grafana with container healthchecks. Prometheus waits for the app healthcheck and Grafana waits for Prometheus. Compose explicitly selects the PostgreSQL, Redis, and Kafka adapters; standalone startup remains process-local by default. Healthchecks prove container readiness, while the external-profile integration tests and observability artifact verify selected application paths.
