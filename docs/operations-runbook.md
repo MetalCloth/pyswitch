@@ -21,7 +21,7 @@ Open Prometheus at `http://127.0.0.1:9090` and Grafana at `http://127.0.0.1:3000
 4. Inspect application logs for a JSON request record. Confirm the request body, synthetic token, and idempotency key are absent.
 5. Recover Stripe through the admin API and restore its simulation configuration.
 
-This scenario exercises the local mock provider and default in-memory profile only. It does not prove PostgreSQL persistence, Redis coordination, Redpanda publication, dashboard data retention, or multi-process behavior because Compose starts with external profiles disabled.
+This scenario exercises the local mock provider and default in-memory profile only. The separate Compose profile selects PostgreSQL, Redis, and Redpanda explicitly; use the external-profile integration tests and `scripts/observability_evidence.py` for evidence of those paths. Neither run proves long-term dashboard retention or multi-process production behavior.
 
 ## Simulated dependency outage
 
